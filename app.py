@@ -1,38 +1,3 @@
-import sys
-print(f"=== DEBUG: Python version: {sys.version} ===")
-print(f"=== DEBUG: Python executable: {sys.executable} ===")
-
-# Check what psycopg2 packages are available
-try:
-    import psycopg2
-    print(f"=== DEBUG: Regular psycopg2 found at: {psycopg2.__file__} ===")
-except ImportError as e:
-    print(f"=== DEBUG: Regular psycopg2 not available: {e} ===")
-
-try:
-    import psycopg2_binary
-    print(f"=== DEBUG: psycopg2-binary found at: {psycopg2_binary.__file__} ===")
-except ImportError as e:
-    print(f"=== DEBUG: psycopg2-binary not available: {e} ===")
-
-# Force using psycopg2-binary by manipulating the path
-import site
-import os
-site_packages = None
-for path in sys.path:
-    if 'site-packages' in path:
-        site_packages = path
-        break
-
-if site_packages:
-    print(f"=== DEBUG: Site packages path: {site_packages} ===")
-    # List all psycopg2 related files
-    try:
-        files = os.listdir(site_packages)
-        psycopg2_files = [f for f in files if 'psycopg' in f]
-        print(f"=== DEBUG: psycopg2 files in site-packages: {psycopg2_files} ===")
-    except:
-        pass
 from flask import Flask, render_template, request, redirect, url_for, session
 import os
 import secrets
@@ -44,13 +9,13 @@ from urllib.parse import unquote
 from concurrent.futures import ThreadPoolExecutor
 import sys
 
-# SIMPLE DIRECT IMPORT - psycopg2-binary installs as 'psycopg2'
-import psycopg2
-from psycopg2.pool import ThreadedConnectionPool
+# Use pg8000 instead of psycopg2 for Python 3.13 compatibility
+import pg8000
+from pg8000.native import Connection
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Import other dependencies normally
+# Import other dependencies
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 from flask import send_from_directory, jsonify  
@@ -61,95 +26,35 @@ from flask_compress import Compress
 # Create a thread pool for background tasks
 executor = ThreadPoolExecutor(max_workers=4)
 
-# Create a connection pool
-db_pool = None
-# Handle other imports with proper error handling
-try:
-    from authlib.integrations.flask_client import OAuth
-    from dotenv import load_dotenv
-    from flask import send_from_directory, jsonify  
-    from flask_cors import CORS
-    from flask_caching import Cache
-    from flask_compress import Compress
-except ImportError as e:
-    print(f"Import error: {e}")
-    # Fallback: create dummy classes for essential components
-    class DummyOAuth:
-        def register(self, *args, **kwargs):
-            return None
-    OAuth = DummyOAuth
-    load_dotenv = lambda: None
-    CORS = lambda app: app
-    Cache = type('DummyCache', (), {'init_app': lambda self, app: None, 'cached': lambda *args, **kwargs: lambda func: func})()
-    Compress = type('DummyCompress', (), {'init_app': lambda self, app: None})()
-
-# Create a thread pool for background tasks
-executor = ThreadPoolExecutor(max_workers=4)
-# Create a connection pool
-db_pool = None
-
-# FORCE use psycopg2-binary by manipulating the import system
-try:
-    # First try to import psycopg2_binary directly
-    from psycopg2_binary import psycopg2
-    from psycopg2_binary.pool import ThreadedConnectionPool
-    print("=== SUCCESS: Using psycopg2_binary direct import ===")
-except ImportError:
-    try:
-        # Fallback: use importlib to load psycopg2_binary
-        import importlib
-        psycopg2_binary = importlib.import_module('psycopg2_binary')
-        psycopg2 = psycopg2_binary
-        ThreadedConnectionPool = psycopg2_binary.pool.ThreadedConnectionPool
-        print("=== SUCCESS: Using psycopg2_binary via importlib ===")
-    except ImportError:
-        try:
-            # Final fallback: use regular psycopg2
-            import psycopg2
-            from psycopg2.pool import ThreadedConnectionPool
-            print("=== WARNING: Using regular psycopg2 (may fail on Python 3.13) ===")
-        except ImportError as e:
-            print(f"=== CRITICAL ERROR: No psycopg2 available: {e} ===")
-            # Emergency fallback to SQLite
-            import sqlite3
-            print("=== EMERGENCY: Falling back to SQLite ===")
-            # You'll need to implement SQLite connection functions here
-            raise ImportError("PostgreSQL not available. Please contact support.")
-
-def init_db_pool():
-    global db_pool
+# Database connection functions
+def get_db_connection():
+    """Get PostgreSQL connection using pg8000"""
     try:
         # USE THIS CONNECTION STRING FORMAT FOR NEON
         connection_string = "postgresql://neondb_owner:npg_cYsvm4VrBbK5@ep-billowing-grass-a11o6ujx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
         
-        db_pool = ThreadedConnectionPool(
-            minconn=1,
-            maxconn=20,
-            dsn=connection_string  # Use DSN instead of individual parameters
+        # Parse connection string
+        from urllib.parse import urlparse
+        result = urlparse(connection_string)
+        
+        conn = Connection(
+            user=result.username,
+            password=result.password,
+            host=result.hostname,
+            port=result.port or 5432,
+            database=result.path[1:] if result.path else 'neondb'
         )
-        print("Database connection pool initialized successfully with Neon")
-    except Exception as e:
-        print(f"Database connection pool error: {e}")
-        raise
-
-# Initialize the pool when the app starts
-init_db_pool()
-
-def get_db_connection():
-    try:
-        return db_pool.getconn()
+        return conn
     except Exception as e:
         print(f"Database connection error: {e}")
-        # Fallback to direct connection with proper Neon format
-        connection_string = "postgresql://neondb_owner:npg_cYsvm4VrBbK5@ep-billowing-grass-a11o6ujx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
-        return psycopg2.connect(connection_string)
+        raise
 
 def return_db_connection(conn):
+    """Close database connection"""
     try:
-        db_pool.putconn(conn)
+        conn.close()
     except:
-        conn.close()  # Just close if pool is not available
-
+        pass
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -160,8 +65,6 @@ load_dotenv()
 # Create Flask app
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
-
-from flask_compress import Compress
 
 # Add compression to your Flask app
 compress = Compress()
@@ -174,9 +77,8 @@ CORS(app)
 CATEGORIES_DIR = os.path.join('templates', 'categories')
 os.makedirs(CATEGORIES_DIR, exist_ok=True)
 
-
 app.config['CACHE_TYPE'] = 'simple'
-app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300
 cache = Cache(app)
 
 # ===== Google OAuth Configuration =====
@@ -1614,6 +1516,7 @@ def close_db_connection(exception):
 if __name__ == "__main__":
 
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
 
 
