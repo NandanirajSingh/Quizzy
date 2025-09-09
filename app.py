@@ -1,31 +1,45 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-try:
-    import psycopg2
-except ImportError:
-    # Fallback to binary version if regular psycopg2 fails
-    try:
-        import psycopg2_binary as psycopg2
-    except ImportError:
-        # If both fail, provide a helpful error message
-        raise ImportError("Neither psycopg2 nor psycopg2-binary could be imported. Please install psycopg2-binary.")
-from werkzeug.security import generate_password_hash, check_password_hash
-from authlib.integrations.flask_client import OAuth
-from dotenv import load_dotenv
 import os
 import secrets
-from functools import wraps
-from flask import send_from_directory, jsonify  
-from urllib.parse import unquote
 import json
 import logging 
-from flask_cors import CORS
 import time
-from flask_caching import Cache
-# Update your get_db_connection function to use connection pooling
-from psycopg2.pool import ThreadedConnectionPool
-import threading
-
+from functools import wraps
+from urllib.parse import unquote
 from concurrent.futures import ThreadPoolExecutor
+
+# Handle psycopg2 import with fallback
+try:
+    import psycopg2
+    from psycopg2.pool import ThreadedConnectionPool
+except ImportError:
+    try:
+        import psycopg2_binary as psycopg2
+        from psycopg2_binary.pool import ThreadedConnectionPool
+    except ImportError:
+        raise ImportError("Neither psycopg2 nor psycopg2-binary could be imported")
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# Handle other imports with proper error handling
+try:
+    from authlib.integrations.flask_client import OAuth
+    from dotenv import load_dotenv
+    from flask import send_from_directory, jsonify  
+    from flask_cors import CORS
+    from flask_caching import Cache
+    from flask_compress import Compress
+except ImportError as e:
+    print(f"Import error: {e}")
+    # Fallback: create dummy classes for essential components
+    class DummyOAuth:
+        def register(self, *args, **kwargs):
+            return None
+    OAuth = DummyOAuth
+    load_dotenv = lambda: None
+    CORS = lambda app: app
+    Cache = type('DummyCache', (), {'init_app': lambda self, app: None, 'cached': lambda *args, **kwargs: lambda func: func})()
+    Compress = type('DummyCompress', (), {'init_app': lambda self, app: None})()
 
 # Create a thread pool for background tasks
 executor = ThreadPoolExecutor(max_workers=4)
@@ -1530,3 +1544,4 @@ def close_db_connection(exception):
 if __name__ == "__main__":
 
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
