@@ -1,3 +1,38 @@
+import sys
+print(f"=== DEBUG: Python version: {sys.version} ===")
+print(f"=== DEBUG: Python executable: {sys.executable} ===")
+
+# Check what psycopg2 packages are available
+try:
+    import psycopg2
+    print(f"=== DEBUG: Regular psycopg2 found at: {psycopg2.__file__} ===")
+except ImportError as e:
+    print(f"=== DEBUG: Regular psycopg2 not available: {e} ===")
+
+try:
+    import psycopg2_binary
+    print(f"=== DEBUG: psycopg2-binary found at: {psycopg2_binary.__file__} ===")
+except ImportError as e:
+    print(f"=== DEBUG: psycopg2-binary not available: {e} ===")
+
+# Force using psycopg2-binary by manipulating the path
+import site
+import os
+site_packages = None
+for path in sys.path:
+    if 'site-packages' in path:
+        site_packages = path
+        break
+
+if site_packages:
+    print(f"=== DEBUG: Site packages path: {site_packages} ===")
+    # List all psycopg2 related files
+    try:
+        files = os.listdir(site_packages)
+        psycopg2_files = [f for f in files if 'psycopg' in f]
+        print(f"=== DEBUG: psycopg2 files in site-packages: {psycopg2_files} ===")
+    except:
+        pass
 from flask import Flask, render_template, request, redirect, url_for, session
 import os
 import secrets
@@ -52,6 +87,34 @@ except ImportError as e:
 executor = ThreadPoolExecutor(max_workers=4)
 # Create a connection pool
 db_pool = None
+
+# FORCE use psycopg2-binary by manipulating the import system
+try:
+    # First try to import psycopg2_binary directly
+    from psycopg2_binary import psycopg2
+    from psycopg2_binary.pool import ThreadedConnectionPool
+    print("=== SUCCESS: Using psycopg2_binary direct import ===")
+except ImportError:
+    try:
+        # Fallback: use importlib to load psycopg2_binary
+        import importlib
+        psycopg2_binary = importlib.import_module('psycopg2_binary')
+        psycopg2 = psycopg2_binary
+        ThreadedConnectionPool = psycopg2_binary.pool.ThreadedConnectionPool
+        print("=== SUCCESS: Using psycopg2_binary via importlib ===")
+    except ImportError:
+        try:
+            # Final fallback: use regular psycopg2
+            import psycopg2
+            from psycopg2.pool import ThreadedConnectionPool
+            print("=== WARNING: Using regular psycopg2 (may fail on Python 3.13) ===")
+        except ImportError as e:
+            print(f"=== CRITICAL ERROR: No psycopg2 available: {e} ===")
+            # Emergency fallback to SQLite
+            import sqlite3
+            print("=== EMERGENCY: Falling back to SQLite ===")
+            # You'll need to implement SQLite connection functions here
+            raise ImportError("PostgreSQL not available. Please contact support.")
 
 def init_db_pool():
     global db_pool
@@ -1551,6 +1614,7 @@ def close_db_connection(exception):
 if __name__ == "__main__":
 
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
 
 
