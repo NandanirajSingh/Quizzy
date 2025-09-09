@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - User</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="userhome">
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo1.png') }}" alt="" height="45px" width="45px" style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+            <!-- In your UserHome.html, modify these links -->
+<div class="links">
+    <a href="{{ url_for('userhome') }}"><b><p>Home</p></b></a> 
+    <a href="{{ url_for('userdashboard') }}"><p>Dashboard</p></a> 
+    <a href="{{ url_for('gettoknowus') }}">
+                <p>About Us</p>
+            </a>
+    <a href="/login"><button>Admin Login</button></a>
+</div>
+            <button class="button2" onclick="ExpandNav()">
+                <i class="fa-solid fa-bars" id="menubar"></i>
+            </button>
+        </nav>
+        <section>
+            <h1>Welcome , &nbsp; Player  </h1>
+            <a href="{{ url_for('userdashboard') }}"><button class="pbutton" style="margin-top: 80px;"><i class="fa-solid fa-play"></i>&nbsp;Play Now</button></a>
+            <a href="{{ url_for('joinus')}}"><button class="cbutton">Create Quizzes for free</button></a>
+            <img src="{{ url_for('static', filename='quiz show-rafiki.svg') }}" alt="">
+        </section>
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+    <script>
+         //navbar expansion
+    function ExpandNav() {
+        const nav = document.getElementById("nav");
+        nav.classList.toggle('expanded');
+        
+        // Toggle between hamburger and close icon
+        const menuIcon = document.getElementById("menubar");
+        if (nav.classList.contains('expanded')) {
+            menuIcon.classList.remove('fa-bars');
+            menuIcon.classList.add('fa-times');
+        } else {
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById("nav");
+        const button = document.querySelector('.button2');
+        
+        // Check if the click is outside the nav and button
+        if (!nav.contains(event.target) && !button.contains(event.target) && nav.classList.contains('expanded')) {
+            nav.classList.remove('expanded');
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000 && nav.classList.contains('expanded')) {
+            nav.classList.remove("expanded");
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    </script>
+</body>
+
+</html>

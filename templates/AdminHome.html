@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Quizzy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<style>
+
+
+</style>
+
+<body class="adminhome">
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo1.png') }}" alt="" height="45px" width="45px" style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+            <div class="links">
+                <a href="">
+                    <b><p>Home</p></b>
+                </a>
+                <a href="{{ url_for('admindashboard') }}">
+                    <p>Dashboard</p>
+                </a>
+                <a href="{{ url_for('gettoknowus') }}">
+                <p>About Us</p>
+            </a>
+<a href="#"><button id="logoutBtn">Logout</button></a>
+            </div>
+            <button class="button2" onclick="ExpandNav()">
+                <i class="fa-solid fa-bars" id="menubar"></i>
+            </button>
+        </nav>
+        <section >
+            <!-- Add this after your existing modals -->
+
+            <h1>Welcome , &nbsp; Admin</h1>
+            <a href="{{ url_for('createquiz') }}"><button class="cbutton">Create A New Quiz</button></a>
+            <img src="{{ url_for('static', filename='quiz show-rafiki.svg') }}" alt="">
+       <div class="modalscreen" id="logoutModal" style="display: none;">
+    <div class="categorymodal" style="border-radius: 8px;">
+        <div class="up"><b>Logout</b></div>
+        <div class="center">
+            <p>Are you sure that you want to logout?</p>
+        </div>
+        <div class="down" style="text-align: right; padding-bottom: 10px; gap:5%">
+    <button type="button" id="cancelLogoutBtn">Cancel</button>
+    <button type="button" id="confirmLogoutBtn">Logout</button>
+</div>
+    </div>
+</div>
+        </section>
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+<script>
+    // ===== LOGOUT MODAL FUNCTIONS =====
+function showLogoutModal() {
+    const modal = document.getElementById("logoutModal");
+    if (modal) modal.style.display = 'flex';
+}
+
+function hideLogoutModal() {
+    const modal = document.getElementById("logoutModal");
+    if (modal) modal.style.display = 'none';
+}
+
+async function confirmLogout() {
+    try {
+        // Perform logout API call if needed
+        // await fetch('/api/logout', { method: 'POST' });
+        
+        // Redirect to login page
+        window.location.href = '/login';
+    } catch (error) {
+        console.error("Error during logout:", error);
+        // Fallback redirect if API call fails
+        window.location.href = '/login';
+    }
+}
+    //navbar expansion
+    function ExpandNav() {
+        const nav = document.getElementById("nav");
+        nav.classList.toggle('expanded');
+        
+        // Toggle between hamburger and close icon
+        const menuIcon = document.getElementById("menubar");
+        if (nav.classList.contains('expanded')) {
+            menuIcon.classList.remove('fa-bars');
+            menuIcon.classList.add('fa-times');
+        } else {
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById("nav");
+        const button = document.querySelector('.button2');
+        
+        // Check if the click is outside the nav and button
+        if (!nav.contains(event.target) && !button.contains(event.target) && nav.classList.contains('expanded')) {
+            nav.classList.remove('expanded');
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000 && nav.classList.contains('expanded')) {
+            nav.classList.remove("expanded");
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    function initializePage() {
+    // ... your existing code ...
+    
+    // Add these event listeners
+    const logoutBtn = document.getElementById("logoutBtn");
+    const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+    const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+    
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            showLogoutModal();
+        });
+    }
+    
+    if (cancelLogoutBtn) {
+        cancelLogoutBtn.addEventListener("click", hideLogoutModal);
+    }
+    
+    if (confirmLogoutBtn) {
+        confirmLogoutBtn.addEventListener("click", confirmLogout);
+    }
+    
+    // ... rest of your existing initialization code ...
+}
+ if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+        initializePage();
+    }
+</script>
+</html>
