@@ -1,6 +1,6 @@
 setuptools==65.5.0
 Flask==2.3.3
-psycopg2==2.9.7
+psycopg2-binary==2.9.9
 Flask-Bcrypt==1.0.1
 gunicorn==21.2.0
 authlib==1.2.0
