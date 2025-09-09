@@ -8,28 +8,26 @@ from functools import wraps
 from urllib.parse import unquote
 from concurrent.futures import ThreadPoolExecutor
 import sys
-print(f"=== DEBUG INFO ===")
-print(f"Python version: {sys.version}")
-print(f"Executable: {sys.executable}")
-print(f"Path: {sys.path}")
-print(f"==================")
-# Handle psycopg2 import with fallback
-# Handle psycopg2 import - use direct import for binary
-# Simple direct import - psycopg2-binary installs as 'psycopg2'
-try:
-    import psycopg2
-    from psycopg2.pool import ThreadedConnectionPool
-    print("Successfully imported psycopg2")
-except ImportError as e:
-    print(f"Psycopg2 import failed: {e}")
-    # Try to provide a helpful error message
-    import sys
-    print(f"Python version: {sys.version}")
-    print(f"Python path: {sys.path}")
-    raise ImportError("psycopg2 is not available. This is likely a Python 3.13 compatibility issue.")
+
+# SIMPLE DIRECT IMPORT - psycopg2-binary installs as 'psycopg2'
+import psycopg2
+from psycopg2.pool import ThreadedConnectionPool
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# Import other dependencies normally
+from authlib.integrations.flask_client import OAuth
+from dotenv import load_dotenv
+from flask import send_from_directory, jsonify  
+from flask_cors import CORS
+from flask_caching import Cache
+from flask_compress import Compress
+
+# Create a thread pool for background tasks
+executor = ThreadPoolExecutor(max_workers=4)
+
+# Create a connection pool
+db_pool = None
 # Handle other imports with proper error handling
 try:
     from authlib.integrations.flask_client import OAuth
@@ -1553,6 +1551,7 @@ def close_db_connection(exception):
 if __name__ == "__main__":
 
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
 
 
