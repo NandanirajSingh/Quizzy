@@ -1,3 +1,4 @@
+python_version<3.13
 Flask==2.3.3
 Flask-Bcrypt==1.0.1
 gunicorn==21.2.0
@@ -6,5 +7,6 @@ python-dotenv==1.0.0
 Flask-Caching==2.0.2
 Flask-Compress==1.14
 psycopg2-binary==2.9.9
+
 
 
