@@ -1,0 +1,1604 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: rgb(236, 63, 0);
+    letter-spacing: 1.5px;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+*::selection {
+    background-color: rgb(255, 82, 19);
+    color: white;
+}
+
+button {
+    cursor: pointer;
+}
+
+.joiningform input[type="email"],
+nav .links button,
+.joiningform input[type="submit"],
+.admindashboard section .top button,
+.admindashboard .categorymodal .center input,
+.admindashboard .categorymodal .down button,
+.admindashboard .categorymodal .down input[type='submit'] {
+    outline: none;
+    border: none;
+}
+
+nav,
+.logo,
+.links,
+footer,
+.applogo,
+.admindashboard section .top,
+.admindashboard .categorymodal>div {
+    display: flex;
+    align-items: center;
+}
+
+.main {
+    height: 100vh;
+    width: 100%;
+
+}
+
+nav {
+    height: 8%;
+    width: 100%;
+    padding: 0 5% 0 2%;
+    background-color: antiquewhite;
+    justify-content: space-between;
+}
+
+nav .logo {
+    gap: 10px;
+}
+
+nav .logo h1 {
+    font-size: 1.8rem;
+    letter-spacing: 1.5px;
+}
+
+nav .links {
+    gap: 45px;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    /* font-weight: bold; */
+}
+
+nav .links p:hover,
+footer ul li a:hover {
+    color: rgb(66, 66, 66);
+}
+
+nav .links button,
+.joiningform input[type="submit"] {
+    height: 35px;
+    padding: 0 25px;
+    font-size: 16px;
+    color: white;
+    border-radius: 10px;
+    background-color: rgb(255, 68, 0);
+}
+
+nav .links button:hover,
+section .pbutton:hover {
+    background-color: rgb(255, 106, 52);
+}
+
+section {
+    height: 85%;
+    width: 100%;
+    position: relative;
+    background-color: rgb(255, 249, 242);
+    overflow: scroll;
+}
+
+section>img {
+    position: absolute;
+    height: 60%;
+    right: 10%;
+    bottom: 20%;
+}
+
+section h1 {
+    font-size: 3rem;
+    color: rgb(47, 47, 47);
+}
+
+section .pbutton,
+section .cbutton {
+    height: 55px;
+    width: 400px;
+    border: 3px solid rgb(255, 68, 0);
+    border-radius: 15px;
+    font-size: 1.4rem;
+    margin-top: 30px;
+    letter-spacing: 1.5px;
+}
+
+section .pbutton,
+i {
+    display: block;
+    background-color: rgb(255, 68, 0);
+    color: white;
+}
+
+section .cbutton {
+    background-color: transparent;
+}
+
+section .cbutton:hover {
+    background-color: #e8e8e8d1;
+}
+
+footer {
+    height: 7%;
+    background-color: antiquewhite;
+    justify-content: space-between;
+    padding: 0 5%;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+
+a {
+    text-decoration: none;
+}
+
+footer a {
+    text-decoration: underline;
+}
+
+.join,
+.aboutus {
+    width: 80%;
+    margin: auto;
+    letter-spacing: 1.5px;
+    text-align: center;
+}
+
+.join h2,
+.join p,
+.joiningform .mail,
+.joinlist li sup,
+.aboutus h2,
+.whoweare p {
+    color: rgb(47, 47, 47) !important;
+}
+
+.join h2,
+.aboutus h2 {
+    font-size: 3rem;
+    margin-bottom: 25px;
+}
+
+.join p {
+    font-size: 30px;
+}
+
+.join .sidetext {
+    font-size: 22px;
+    width: 50%;
+    margin-top: 50px;
+    text-align: justify;
+}
+
+.joinpage form  {
+    background-color: white;
+    border: none;
+    padding: 2.5%;
+}
+
+
+.joiningform .mail {
+    display: inline-block;
+    letter-spacing: 1.5px;
+}
+
+.joiningform input[type="email"] {
+    width: 100%;
+    background-color: transparent;
+    border-bottom: 1px solid rgb(98, 98, 98);
+}
+
+
+.aboutus h2 {
+    margin-top: 50px;
+}
+
+.whoweare {
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.whoweare .left {
+    width: 40%;
+}
+
+.whoweare .right {
+    width: 60%;
+    text-align: justify;
+    text-indent: 50px;
+    font-size: 20px;
+}
+
+.accordion,
+.accordion-content,
+.accordion-header,
+.contacts,
+section .joiningform,
+.admindashboard section .top button,
+.admindashboard .categorymodal {
+    border-radius: 8px;
+}
+
+.accordion {
+    width: 70%;
+    margin: auto;
+    overflow: hidden;
+    font-size: 18px;
+}
+
+.accordion-item {
+    margin-top: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.accordion-header:hover {
+    background: #ff5010;
+}
+
+.icon {
+    font-weight: bold;
+}
+
+.accordion-header {
+    background: rgb(255, 118, 69);
+    padding: 20px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 1s ease;
+}
+
+.accordion .accordion-header span {
+    color: white !important;
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 20px;
+    background-color: white !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.131);
+}
+
+.accordion-content p {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.accordion-item.active .accordion-content {
+    max-height: fit-content;
+    padding: 0px 20px;
+}
+
+.accordion-item.active .icon {
+    transform: rotate(180deg);
+}
+
+.contactus {
+    display: grid;
+    grid-template-columns: 25% 25% 25%;
+    grid-template-rows: auto;
+    justify-content: center;
+    align-content: center;
+    gap: 2%;
+    position: relative;
+}
+
+.contacts {
+    position: relative;
+    background-color: antiquewhite;
+    padding: 60px 10px 40px 10px;
+    text-align: start;
+}
+
+.contacts p,
+.contacts b {
+    color: rgb(83, 83, 83);
+}
+
+.applogo {
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    height: 45px;
+    width: 45px;
+    border: 1px solid #ff5010;
+    border-radius: 50%;
+    justify-content: center;
+}
+
+.contactus i {
+    color: #ff5010;
+    background-color: transparent;
+    font-size: 25px;
+}
+
+
+.navbar {
+    position: relative;
+}
+
+
+.navbar .button2 {
+    border: none;
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    display: none;
+}
+
+.navbar .button2 i {
+    font-size: 25px;
+}
+
+.navbar.expanded,
+.navbar.expanded .links {
+    flex-direction: column;
+    align-items: start;
+}
+
+
+.navbar.expanded {
+    justify-content: start;
+    padding-top: 10px;
+}
+
+.navbar.expanded .links {
+    margin-top: 20px;
+}
+
+.navbar.expanded .link {
+    display: block !important;
+}
+
+.navbar.expanded .button2 {
+    display: block;
+}
+
+.button2 i {
+    color: #ff5010;
+    background-color: antiquewhite;
+}
+ .admindashboard section {
+        padding: 35px 3%;
+        position: relative;
+    }
+
+    .admindashboard section .top {
+        justify-content: space-between;
+    }
+
+    .admindashboard section .top h3 {
+        font-size: 2.2rem;
+        color: rgb(49, 49, 49);
+    }
+
+    .admindashboard section .top button {
+        background-color: antiquewhite;
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        outline: 1px solid rgb(255, 206, 142);
+    }
+
+    .admindashboard section .top button:hover {
+        background-color: rgb(255, 247, 236);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.categorymodal .down button {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.categorymodal .down button:hover {
+    background-color: #e5e5e5;
+}
+
+.categorymodal .down input[type='submit'] {
+    background-color: rgb(255, 68, 0);
+    color: white;
+    border: none;
+}
+
+.categorymodal .down input[type='submit']:hover {
+    background-color: rgb(255, 106, 52);
+}
+
+#deleteModal .categorymodal .down button:last-child {
+    background-color: #ff4400;
+    color: white;
+    border: none;
+}
+
+#deleteModal .categorymodal .down button:last-child:hover {
+    background-color: #e03a00;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ .modalscreen {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0%;
+        top: 0%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        display: none;
+        z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .categorymodal {
+        width: 460px;
+        display: grid;
+        grid-template-rows: 65px 120px 50px;
+        grid-template-columns: 458px;
+        border: 1px solid rgb(255, 216, 216);
+        box-shadow: 0 6px 15px rgba(255, 94, 36, 0.1);
+        background-color: white;
+    }
+
+     .categorymodal>div {
+        padding: 10px;
+        border: 0px solid rgb(255, 76, 11);
+        letter-spacing: 1.5px;
+    }
+
+     .categorymodal .up {
+        background-color: rgb(255, 232, 203);
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        font-weight: bold;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    }
+
+     .categorymodal .center {
+        background-color: white;
+    }
+
+    #imageUrlInput,.categorymodal .center input, 
+.categorymodal .center #quizImageUrlInput {
+    height: 30px;
+    width: 250px;
+    margin-left: 5px;
+    background-color: antiquewhite;
+    border: 1px solid #ddd;
+    padding: 0 10px;
+    border-radius: 4px;
+}
+
+.categorymodal .center p {
+    color: #333;
+    font-size: 1.1rem;
+    text-align: center;
+    padding: 10px 0;
+}
+
+     .categorymodal .down {
+        background-color: rgb(255, 232, 203);
+        justify-content: flex-end !important;
+    gap: 10px !important;
+    padding-right: 20px !important;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+     .categorymodal .down button,
+   .categorymodal .down input[type='submit'] {
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    }
+
+    /* ===== Category Cards - Enhanced Styles ===== */
+.categories-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    grid-template-rows: repeat(auto-fill, minmax(220px, 220px));
+    gap: 25px;
+    margin-top: 40px;
+    padding: 20px 0;
+}
+.category-card {
+    cursor: pointer;
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 6px 15px rgba(255, 94, 36, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 68, 0, 0.1);
+    min-height: 220px;
+    min-width: 300px;
+}
+
+.category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #ff4400, #ff8a05);
+    transition: width 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(255, 94, 36, 0.15);
+}
+
+.category-card:hover::before {
+    width: 8px;
+}
+
+.category-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 2;
+}
+
+.category-actions {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.category-card:hover .category-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Add a subtle pattern to cards */
+.category-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    background-image: radial-gradient(rgba(255, 68, 0, 0.1) 2px, transparent 2px);
+    background-size: 12px 12px;
+    opacity: 0.3;
+}
+#imageModal .categorymodal {
+    width: 460px;
+}
+.category-card.with-image {
+    color: white;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    z-index: 1;
+}
+
+.category-card.with-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+}
+
+.category-card.with-image .category-name {
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Default state (no image) */
+.category-actions .action-btn {
+    border: 1px solid rgb(255, 68, 0);
+    color: rgb(255, 68, 0);
+    background-color: rgba(255, 68, 0, 0.1);
+}
+
+.category-actions .action-btn:hover {
+    background-color: rgb(255, 68, 0);
+    color: white!important;
+}
+
+/* State when card has image */
+.category-card.with-image .category-actions .action-btn {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.category-card.with-image .category-actions .action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    color: white;
+}
+
+/* Ensure icons maintain proper styling */
+.category-actions .action-btn i {
+    background-color: transparent !important;
+}
+
+/* Base button styles (shared by all states) */
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    border: 1px solid rgb(255, 68, 0); /* Orange border by default */
+    background: white;
+    color: rgb(255, 68, 0)!important;
+}
+.action-btn i {
+    background-color: transparent !important;
+    color: inherit ;/* Inherit color from parent button */
+}
+.action-btn:hover {
+    background: rgb(255, 68, 0);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Image state - only apply when card has background image */
+.category-card[style*="background-image"] .action-btn,
+.category-card.with-image .action-btn {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.category-card.with-image .action-btn i
+{
+    color: white !important;
+}
+
+.category-card[style*="background-image"] .action-btn:hover,
+.category-card.with-image .action-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    color: white;
+}
+
+
+/* Loading indicator styles */
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 1.2rem;
+}
+.loading-indicator i
+{
+    background-color: transparent;
+    color: #666;
+}
+/* Smooth transition for images */
+.category-card {
+    transition: background-image 0.3s ease;
+}
+
+/* Error message styles */
+.error-message {
+    color: #d9534f;
+    text-align: center;
+    padding: 20px;
+}
+/* ===== EMPTY STATE ===== */
+/* ===== EMPTY STATE - CENTERED & PROMINENT ===== */
+#emptyStateMessage {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 60%;
+    text-align: center;
+    z-index: 1;
+    animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.empty-state {
+    background: rgba(255, 254, 251, 0.95);
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(255, 94, 36, 0.15);
+}
+
+.empty-state i {
+    font-size: 5rem;
+    color: grey;
+    margin-bottom: 2rem;
+    background: transparent;
+}
+
+.empty-state p {
+    font-size: 2rem;
+    font-weight: 600;
+    color: rgb(49, 49, 49);
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+.empty-state small {
+    font-size: 1.2rem;
+    color: rgba(49, 49, 49, 0.8);
+    letter-spacing: 1.5px;
+}
+
+
+/* ===== DELETE MODAL STYLES ===== */
+#deleteModal .categorymodal .center p {
+    color: #333;
+    font-size: 1.1rem;
+    text-align: center;
+    padding: 10px 0;
+}
+
+#deleteModal .categorymodal .down button:last-child {
+    background-color: #ff4400;
+    color: white;
+}
+
+#deleteModal .categorymodal .down button:last-child:hover {
+    background-color: #e03a00;
+}
+
+.category-header {
+    color: #333;
+    padding: 2rem;
+    border-radius: 10px;
+    margin: 2rem 0;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.category-header h2 {
+    font-size: 3rem;
+    color: #555;
+}
+
+.category-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.btn-primary {
+    background: transparent;
+    color: #333;
+    border: 1px solid antiquewhite;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.empty-quizzes {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+    background: transparent;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+.empty-quizzes i {
+    background: transparent;
+}
+
+#addQuizBtn {
+    margin: 1rem 0;
+}
+
+.dashboard-btn {
+    display: none !important;
+}
+
+/* Quiz Cards Grid Layout */
+.quizzes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+    margin-top: 1.5rem;
+}
+
+/* Enhanced Quiz Card Styles */
+.quiz-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 6px 15px rgba(255, 94, 36, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 68, 0, 0.1);
+    min-height: 200px;
+}
+
+.quiz-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #ff4400, #ff8a05);
+    transition: width 0.3s ease;
+}
+
+.quiz-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(255, 94, 36, 0.15);
+}
+
+.quiz-card:hover::before {
+    width: 8px;
+}
+
+.quiz-card-content {
+    margin-bottom: 50px;
+}
+
+.quiz-card h3 {
+    margin: 0 0 0.8rem 0;
+    color: #333;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.quiz-card p {
+    margin: 0 0 1.2rem 0;
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: none;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+.quiz-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.quiz-difficulty {
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.quiz-questions {
+    font-size: 0.9rem;
+    color: #757575;
+}
+
+/* Quiz Actions */
+/* Quiz Actions */
+.quiz-actions {
+    display: flex;
+    gap: 0.8rem;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.quiz-action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    border: 1px solid rgb(255, 68, 0);
+    background: white;
+    
+}
+
+.quiz-action-btn:hover {
+    background: rgb(255, 68, 0);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Ensure icons are always orange on regular cards */
+.quiz-action-btn i {
+    background-color: transparent !important;
+    color: rgb(255, 68, 0) !important;
+}
+
+.quiz-action-btn:hover i {
+    color: white !important;
+}
+
+/* For cards with images */
+.quiz-card.with-image .quiz-action-btn {
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.quiz-card.with-image .quiz-action-btn i {
+    color: white !important;
+}
+
+.quiz-card.with-image .quiz-action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.quiz-card.with-image .quiz-action-btn:hover i {
+    color: white !important;
+}
+
+
+
+/* Difficulty styles */
+
+/* Quiz card with image */
+.quiz-card.with-image {
+    position: relative;
+    z-index: 1;
+    color: white;
+}
+
+.quiz-card.with-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.469);
+    z-index: -1;
+}
+
+.quiz-card.with-image .quiz-card-content {
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.quiz-card.with-image .quiz-card-content h3 {
+    color: white !important;
+}
+
+.quiz-card.with-image .quiz-card-content p {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.quiz-card.with-image .quiz-difficulty {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+
+.quiz-card.with-image .quiz-questions {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+
+
+
+
+/* Difficulty styles - ALWAYS show correct colors regardless of image */
+.difficulty-easy {
+    background-color: #e8f5e9 !important;
+    color: #2e7d32 !important;
+}
+
+.difficulty-medium {
+    background-color: #fff3e0 !important;
+    color: #ef6c00 !important;
+}
+
+.difficulty-hard {
+    background-color: #ffebee !important;
+    color: #c62828 !important;
+}
+
+/* Override for cards with images */
+.quiz-card.with-image .difficulty-easy,
+.quiz-card.with-image .difficulty-medium,
+.quiz-card.with-image .difficulty-hard {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.quiz-card.with-image .difficulty-easy {
+    color: #2e7d32 !important;
+}
+
+.quiz-card.with-image .difficulty-medium {
+    color: #ef6c00 !important;
+}
+
+.quiz-card.with-image .difficulty-hard {
+    color: #c62828 !important;
+}
+
+/* Empty and loading states */
+.empty-quizzes {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    grid-column: 1 / -1;
+}
+
+.loading-quizzes {
+    text-align: center;
+    padding: 2rem;
+    grid-column: 1 / -1;
+}
+.loading-quizzes i
+{
+    background-color: transparent;
+    color:#e03a00;
+}
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: #dc3545;
+    grid-column: 1 / -1;
+}
+
+.quizzes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.quizzes-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.8rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .quizzes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quizzes-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .quiz-card {
+        padding: 20px;
+    }
+}
+
+
+
+
+
+
+
+@media (max-width: 768px) {
+    .quizzes-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .quizzes-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translate(-50%, -48%) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1); 
+    }
+}
+        /* Quiz Creation Specific Styles */
+        .quiz-creation-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .quiz-header {
+            margin-bottom: 30px;
+        }
+
+        .quiz-header h2 {
+            font-size: 2.2rem;
+            color: rgb(49, 49, 49);
+            margin-bottom: 15px;
+        }
+
+        .quiz-header p {
+            color: rgb(83, 83, 83);
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .quiz-form {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 6px 15px rgba(255, 94, 36, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: rgb(49, 49, 49);
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: rgb(49, 49, 49);
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: rgb(255, 68, 0);
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-reset {
+            background-color: rgb(255, 247, 236);
+            border: 1px solid rgb(255, 206, 142);
+            color: rgb(236, 63, 0);
+        }
+
+        .btn-reset:hover {
+            background-color: rgb(255, 231, 200);
+        }
+
+        .btn-create {
+            background-color: rgb(255, 68, 0);
+            color: white;
+            border: none;
+        }
+
+        .btn-create:hover {
+            background-color: rgb(255, 106, 52);
+        }
+
+        /* Question Section */
+        .question-section {
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 30px;
+        }
+
+        .question-item {
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            font-weight: bold;
+            color: rgb(236, 63, 0);
+        }
+
+        .remove-question {
+            background: none;
+            border: none;
+            color: #ff4400;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .option-item input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .option-item input[type="text"] {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .add-option {
+            background: none;
+            border: none;
+            color: rgb(236, 63, 0);
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .add-question {
+            width: 100%;
+            padding: 12px;
+            background-color: antiquewhite;
+            border: 1px dashed rgb(255, 206, 142);
+            border-radius: 8px;
+            color: rgb(236, 63, 0);
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .add-question:hover {
+            background-color: rgb(255, 247, 236);
+        }
+
+/* SMALL SCREEN */
+@media (max-width:750px) {
+
+    section h1 {
+        display: none;
+    }
+
+    nav .logo h1 {
+        font-size: 20px;
+    }
+
+    section>.pbutton {
+        margin: auto;
+    }
+    .adminhome section,
+    .userhome section {
+        padding-top: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .adminhome section>img,
+    .userhome section>img {
+        height: 220px;
+        left: 50%;
+        top: 25%;
+        transform: translate(-50%, -25%);
+    }
+
+    .adminhome section>.cbutton,
+    .userhome section .cbutton,
+    .userhome section .pbutton {
+        height: 45px;
+        width: 280px;
+        font-size: 16px;
+    }
+
+    .contactus {
+        grid-template-columns: 400px;
+    }
+
+}
+@media (max-width:1000px)
+{
+    
+    nav .links {
+        display: none;
+        /* hidden by default */
+        width: 100%;
+    }
+
+    .navbar.expanded .links {
+        display: flex;
+        /* show when expanded */
+        font-size: 14px;
+        padding: 20px 0;
+        gap: 20px;
+    }
+
+    .navbar .button2 {
+        display: block;
+    }
+
+    .navbar.expanded {
+        height: auto;
+        padding-bottom: 20px;
+    }
+}
+/* MEDIUM SCREEN */
+@media (max-width:1200px) and (min-width:751px) {
+    
+    
+
+    section h1 {
+        display: none;
+    }
+
+    .adminhome section,
+    .userhome section {
+        padding-top: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .adminhome section>img,
+    .userhome section>img {
+        height: 280px;
+        left: 50%;
+        top: 25%;
+        transform: translate(-50%, -25%);
+    }
+
+    .adminhome section>.cbutton,
+    .userhome section .cbutton,
+    .userhome section .pbutton {
+        height: 55px;
+        width: 350px;
+        font-size: 18px;
+    }
+
+    .contactus {
+        grid-template-columns: 300px 300px;
+    }
+}
+
+@media (max-width:1200px) {
+    
+    
+    section .join h2 {
+        font-size: 1.8rem;
+        margin-top: 50px;
+    }
+
+    section .join p {
+        font-size: 1.1rem;
+    }
+
+    section .join .sidetext {
+        margin-top: 20px;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+
+    .joinlist {
+        width: fit-content;
+        padding: 10px 0 0 10%;
+    }
+
+    .joinlist li {
+        text-align: start;
+        list-style-image: url('check.png');
+        font-size: 16px;
+        margin-top: 0px;
+    }
+
+    section .joiningform {
+        width: 350px;
+        height: 180px;
+        margin: 20px auto;
+        text-align: center;
+    }
+
+    .joiningform .ftitle {
+        font-size: 1.4rem;
+    }
+
+    .joiningform .mail {
+        margin: 5px 0 10px 0;
+        font-size: 16px;
+    }
+
+    .joiningform input[type="submit"] {
+        margin-top: 5px;
+    }
+
+    .aboutus h2 {
+        font-size: 1.7rem;
+    }
+
+    .whoweare {
+        display: block;
+
+    }
+
+    .whoweare .right,
+    .whoweare .left,
+    .accordion,
+    .contactus {
+        width: 100%;
+        font-size: 14px;
+    }
+
+    .whoweare .left>img {
+        height: 250px;
+    }
+    .quiz-creation-container {
+                padding: 20px;
+            }
+            
+            .quiz-header h2 {
+                font-size: 1.8rem!important;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+}
+
+@media (min-width:1201px) {
+    .adminhome section {
+        padding: 220px 11%;
+    }
+
+    .userhome section {
+        padding: 170px 11%;
+    }
+
+    .joinpage section {
+        padding: 2% 5%;
+    }
+
+    .joinlist {
+        width: fit-content;
+        padding: 20px 0 0 3%;
+    }
+
+    .joinlist li {
+        text-align: start;
+        list-style-image: url('check.png');
+        font-size: 22px;
+        margin-top: 20px;
+    }
+
+    section .joiningform {
+        position: absolute;
+        right: 15%;
+        bottom: 15%;
+    }
+
+    .joiningform .ftitle {
+        font-size: 2.2rem;
+    }
+
+    .joiningform .mail {
+        margin: 30px 0 10px 0;
+        font-size: 18px;
+    }
+
+    .joiningform input[type="submit"] {
+        margin-top: 30px;
+    }
+
+    .whoweare>img {
+        height: 350px;
+    }
+
+}
+#logoutModal .down #confirmLogoutBtn
+{
+    background-color: orangered;
+    color: white;
+}
