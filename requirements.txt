@@ -6,7 +6,8 @@ authlib==1.2.0
 python-dotenv==1.0.0
 Flask-Caching==2.0.2
 Flask-Compress==1.14
-psycopg[binary]==3.2.1
+psycopg2
+
 
 
 
