@@ -9,17 +9,29 @@ from urllib.parse import unquote
 from concurrent.futures import ThreadPoolExecutor
 
 # Handle psycopg2 import with fallback
+# Handle psycopg2 import - use direct import for binary
 try:
-    import psycopg2_binary as psycopg2
+    # Try to import the binary version directly
+    from psycopg2_binary import psycopg2
     from psycopg2_binary.pool import ThreadedConnectionPool
-    print("Using psycopg2-binary")
+    print("Using psycopg2-binary direct import")
 except ImportError:
     try:
+        # Fallback to regular import
         import psycopg2
         from psycopg2.pool import ThreadedConnectionPool
-        print("Using psycopg2 (fallback)")
+        print("Using psycopg2 regular import")
     except ImportError:
-        raise ImportError("Neither psycopg2 nor psycopg2-binary could be imported")
+        # Final fallback - try to import the modules directly
+        try:
+            import sys
+            # Look for the binary package in site-packages
+            from importlib import import_module
+            psycopg2 = import_module('psycopg2_binary')
+            ThreadedConnectionPool = getattr(psycopg2.pool, 'ThreadedConnectionPool')
+            print("Using psycopg2-binary via import_module")
+        except:
+            raise ImportError("Neither psycopg2 nor psycopg2-binary could be imported")
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -1546,5 +1558,6 @@ def close_db_connection(exception):
 if __name__ == "__main__":
 
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
 
