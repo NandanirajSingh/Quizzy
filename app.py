@@ -10,12 +10,14 @@ from concurrent.futures import ThreadPoolExecutor
 
 # Handle psycopg2 import with fallback
 try:
-    import psycopg2
-    from psycopg2.pool import ThreadedConnectionPool
+    import psycopg2_binary as psycopg2
+    from psycopg2_binary.pool import ThreadedConnectionPool
+    print("Using psycopg2-binary")
 except ImportError:
     try:
-        import psycopg2_binary as psycopg2
-        from psycopg2_binary.pool import ThreadedConnectionPool
+        import psycopg2
+        from psycopg2.pool import ThreadedConnectionPool
+        print("Using psycopg2 (fallback)")
     except ImportError:
         raise ImportError("Neither psycopg2 nor psycopg2-binary could be imported")
 
@@ -1544,4 +1546,5 @@ def close_db_connection(exception):
 if __name__ == "__main__":
 
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
