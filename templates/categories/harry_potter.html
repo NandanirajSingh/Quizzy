@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harry Potter - Quizzy</title>
+    <link rel="stylesheet" href="/static/styles.css?v=1757272145">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_buster }}">
+</head>
+<body class="category-page">
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="/static/logo1.png" alt="" height="45px" width="45px" style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+            <div class="links">
+                <a href="/adminhome"><p>Home</p></a>
+                <a href="/admindashboard"><p>Dashboard</p></a>
+                <a href="{ url_for('gettoknowus') }">
+                <p>About Us</p>
+            </a>
+            </div>
+            <button class="button2" onclick="ExpandNav()">
+                <i class="fa-solid fa-bars" id="menubar"></i>
+            </button>
+        </nav>
+
+        <section>
+            <div class="category-content">
+                <div class="category-header">
+                    <h2>Harry Potter</h2>
+                    <p>Manage quizzes and content for this category</p>
+                </div>
+                
+                <div class="quizzes-container">
+                    <div class="quizzes-header">
+                        <h2>Quizzes in Harry Potter</h2>
+                        <button id="addQuizBtn" class="btn-primary" onclick="location.href='/createquiz'">
+                            <i class="fas fa-plus"></i> Add New Quiz
+                        </button>
+                    </div>
+                    
+                    <div class="quizzes-grid" id="quizzesList">
+                        <div class="loading-quizzes">
+                            <i class="fas fa-spinner fa-spin"></i> Loading quizzes...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div class="modalscreen" id="deleteModal" style="display: none;">
+        <div class="categorymodal">
+            <div class="up"><b>Delete Quiz</b></div>
+            <div class="center">
+                <p>Are you sure you want to delete this quiz?</p>
+                <p id="quizToDeleteName" style="font-weight: bold; margin-top: 10px;"></p>
+            </div>
+            <div class="down">
+                <button type="button" onclick="hideDeleteModal()">Cancel</button>
+                <button type="button" id="confirmDeleteQuizBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modalscreen" id="editImageModal" style="display: none;">
+        <form id="imageForm">
+            <div class="categorymodal">
+                <div class="up"><b>Edit Quiz Image</b></div>
+                <div class="center">
+                    Image URL: <input type="url" id="quizImageUrlInput" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="down">
+                    <button type="button" onclick="hideImageModal()">Cancel</button>
+                    <input type="submit" value="Save">
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+     //navbar expansion
+    function ExpandNav() {
+        const nav = document.getElementById("nav");
+        nav.classList.toggle('expanded');
+        
+        // Toggle between hamburger and close icon
+        const menuIcon = document.getElementById("menubar");
+        if (nav.classList.contains('expanded')) {
+            menuIcon.classList.remove('fa-bars');
+            menuIcon.classList.add('fa-times');
+        } else {
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById("nav");
+        const button = document.querySelector('.button2');
+        
+        // Check if the click is outside the nav and button
+        if (!nav.contains(event.target) && !button.contains(event.target) && nav.classList.contains('expanded')) {
+            nav.classList.remove('expanded');
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000 && nav.classList.contains('expanded')) {
+            nav.classList.remove("expanded");
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    let currentQuizToDelete = null;
+    let currentQuizToEdit = null;
+
+    function showDeleteQuizModal(quizId, quizTitle) {
+        currentQuizToDelete = quizId;
+        document.getElementById("quizToDeleteName").textContent = quizTitle;
+        document.getElementById("deleteModal").style.display = 'flex';
+    }
+
+    function hideDeleteModal() {
+        document.getElementById("deleteModal").style.display = 'none';
+        currentQuizToDelete = null;
+    }
+
+    function showImageModal(quizId) {
+        currentQuizToEdit = quizId;
+        document.getElementById("editImageModal").style.display = 'flex';
+        document.getElementById("quizImageUrlInput").value = '';
+    }
+
+    function hideImageModal() {
+        document.getElementById("editImageModal").style.display = 'none';
+        document.getElementById("quizImageUrlInput").value = '';
+        currentQuizToEdit = null;
+    }
+
+    async function loadQuizzes() {
+        const quizzesList = document.getElementById('quizzesList');
+        const categoryName = 'Harry Potter';
+        
+        try {
+            quizzesList.innerHTML = `
+                <div class="loading-quizzes">
+                    <i class="fas fa-spinner fa-spin"></i> Loading quizzes...
+                </div>
+            `;
+            
+            const response = await fetch('/api/categories/' + encodeURIComponent(categoryName) + '/quizzes', {
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status);
+            }
+            
+            const quizzes = await response.json();
+            quizzesList.innerHTML = '';
+            
+            if (quizzes.length === 0) {
+                quizzesList.innerHTML = `
+                    <div class="empty-quizzes">
+                        <i class="fas fa-inbox" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"></i>
+                        <p>No quizzes yet</p>
+                        <small>Get started by creating your first quiz</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            quizzes.forEach(quiz => {
+                const difficultyClass = 'difficulty-' + quiz.difficulty;
+                const quizCard = document.createElement('div');
+                quizCard.className = 'quiz-card';
+                quizCard.dataset.quizId = quiz.id;
+                
+                quizCard.innerHTML = `
+                    <div class="quiz-card-content">
+                        <h3>${quiz.title}</h3>
+                        <p>${quiz.description || 'No description'}</p>
+                        <div class="quiz-meta">
+                            <span class="quiz-difficulty ${difficultyClass}">${quiz.difficulty}</span>
+                            <span class="quiz-questions">${quiz.num_questions} questions</span>
+                        </div>
+                    </div>
+                    <div class="quiz-actions">
+                        <button class="quiz-action-btn edit-quiz" title="Edit Quiz Image">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button class="quiz-action-btn delete-quiz" title="Delete Quiz">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                if (quiz.image_url) {
+                    quizCard.style.backgroundImage = 'url(' + quiz.image_url + ')';
+                    quizCard.style.backgroundSize = 'cover';
+                    quizCard.style.backgroundPosition = 'center';
+                    quizCard.classList.add("with-image");
+                }
+                
+                quizCard.querySelector('.delete-quiz').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showDeleteQuizModal(quiz.id, quiz.title);
+                });
+                
+                quizCard.querySelector('.edit-quiz').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showImageModal(quiz.id);
+                });
+                
+                quizzesList.appendChild(quizCard);
+            });
+            
+        } catch (error) {
+            console.error('Error loading quizzes:', error);
+            quizzesList.innerHTML = '<div class="error-message">Failed to load quizzes</div>';
+        }
+    }
+
+    async function deleteQuiz() {
+        if (!currentQuizToDelete) return;
+        
+        try {
+            const deleteBtn = document.getElementById("confirmDeleteQuizBtn");
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = "Deleting...";
+            
+            const response = await fetch('/api/quizzes/' + currentQuizToDelete, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                const quizCard = document.querySelector('.quiz-card[data-quiz-id="' + currentQuizToDelete + '"]');
+                if (quizCard) quizCard.remove();
+                hideDeleteModal();
+                
+                const quizzesList = document.getElementById('quizzesList');
+                if (quizzesList.children.length === 0) {
+                    quizzesList.innerHTML = `
+                        <div class="empty-quizzes">
+                            <i class="fas fa-inbox"></i>
+                            <p>No quizzes yet</p>
+                            <small>Get started by creating your first quiz</small>
+                        </div>
+                    `;
+                }
+            } else {
+                alert('Failed to delete quiz');
+            }
+        } catch (error) {
+            console.error('Error deleting quiz:', error);
+            alert('An error occurred while deleting the quiz');
+        } finally {
+            const deleteBtn = document.getElementById("confirmDeleteQuizBtn");
+            if (deleteBtn) {
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = "Delete";
+            }
+        }
+    }
+
+    async function handleImageSubmit(e) {
+        e.preventDefault();
+        const imageUrlInput = document.getElementById("quizImageUrlInput");
+        const imageUrl = imageUrlInput.value.trim();
+        
+        if (!imageUrl || !currentQuizToEdit) {
+            hideImageModal();
+            return;
+        }
+        
+        try {
+            const saveBtn = document.querySelector("#imageForm [type='submit']");
+            saveBtn.disabled = true;
+            saveBtn.value = "Saving...";
+            
+            const response = await fetch('/api/quizzes/' + currentQuizToEdit + '/image', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image_url: imageUrl })
+            });
+            
+            if (response.ok) {
+                const quizCard = document.querySelector('.quiz-card[data-quiz-id="' + currentQuizToEdit + '"]');
+                if (quizCard) {
+                    quizCard.style.backgroundImage = 'url(' + imageUrl + ')';
+                    quizCard.style.backgroundSize = 'cover';
+                    quizCard.style.backgroundPosition = 'center';
+                    quizCard.classList.add("with-image");
+                }
+                alert('Quiz image updated successfully!');
+                hideImageModal();
+            } else {
+                throw new Error('Failed to update image');
+            }
+        } catch (error) {
+            console.error("Error updating image:", error);
+            alert("Failed to update image");
+        } finally {
+            const saveBtn = document.querySelector("#imageForm [type='submit']");
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.value = "Save";
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadQuizzes();
+        document.getElementById("confirmDeleteQuizBtn").addEventListener("click", deleteQuiz);
+        document.getElementById("imageForm").addEventListener("submit", handleImageSubmit);
+    });
+    </script>
+</body>
+</html>
