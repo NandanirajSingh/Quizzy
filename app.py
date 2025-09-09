@@ -1,5 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import psycopg2
+try:
+    import psycopg2
+except ImportError:
+    # Fallback to binary version if regular psycopg2 fails
+    try:
+        import psycopg2_binary as psycopg2
+    except ImportError:
+        # If both fail, provide a helpful error message
+        raise ImportError("Neither psycopg2 nor psycopg2-binary could be imported. Please install psycopg2-binary.")
 from werkzeug.security import generate_password_hash, check_password_hash
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
@@ -1520,4 +1528,5 @@ def close_db_connection(exception):
     pass  # Our connection pool handles this automatically
 
 if __name__ == "__main__":
+
     app.run(host='localhost', port=5000, debug=True, threaded=True)
