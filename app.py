@@ -7,31 +7,26 @@ import time
 from functools import wraps
 from urllib.parse import unquote
 from concurrent.futures import ThreadPoolExecutor
-
+import sys
+print(f"=== DEBUG INFO ===")
+print(f"Python version: {sys.version}")
+print(f"Executable: {sys.executable}")
+print(f"Path: {sys.path}")
+print(f"==================")
 # Handle psycopg2 import with fallback
 # Handle psycopg2 import - use direct import for binary
+# Simple direct import - psycopg2-binary installs as 'psycopg2'
 try:
-    # Try to import the binary version directly
-    from psycopg2_binary import psycopg2
-    from psycopg2_binary.pool import ThreadedConnectionPool
-    print("Using psycopg2-binary direct import")
-except ImportError:
-    try:
-        # Fallback to regular import
-        import psycopg2
-        from psycopg2.pool import ThreadedConnectionPool
-        print("Using psycopg2 regular import")
-    except ImportError:
-        # Final fallback - try to import the modules directly
-        try:
-            import sys
-            # Look for the binary package in site-packages
-            from importlib import import_module
-            psycopg2 = import_module('psycopg2_binary')
-            ThreadedConnectionPool = getattr(psycopg2.pool, 'ThreadedConnectionPool')
-            print("Using psycopg2-binary via import_module")
-        except:
-            raise ImportError("Neither psycopg2 nor psycopg2-binary could be imported")
+    import psycopg2
+    from psycopg2.pool import ThreadedConnectionPool
+    print("Successfully imported psycopg2")
+except ImportError as e:
+    print(f"Psycopg2 import failed: {e}")
+    # Try to provide a helpful error message
+    import sys
+    print(f"Python version: {sys.version}")
+    print(f"Python path: {sys.path}")
+    raise ImportError("psycopg2 is not available. This is likely a Python 3.13 compatibility issue.")
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -1558,6 +1553,7 @@ def close_db_connection(exception):
 if __name__ == "__main__":
 
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
 
 
