@@ -5,7 +5,7 @@ authlib==1.2.0
 python-dotenv==1.0.0
 Flask-Caching==2.0.2
 Flask-Compress==1.14
-psycopg2-binary==2.9.9
+psycopg2
 requests==2.31.0
 Flask-CORS==4.0.0
 Werkzeug==2.3.7
@@ -21,3 +21,4 @@ cryptography==41.0.7
 bcrypt==4.0.1
 packaging==23.2
 pycparser==2.21
+
