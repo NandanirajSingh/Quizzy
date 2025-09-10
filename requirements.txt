@@ -5,8 +5,8 @@ authlib==1.2.0
 python-dotenv==1.0.0
 Flask-Caching==2.0.2
 Flask-Compress==1.14
-psycopg2==2.9.9  # Remove psycopg2-binary, use psycopg2 instead
-
+psycopg==3.2.0  # Modern PostgreSQL driver
+Flask-SQLAlchemy==3.1.1
 # Keep the rest of your requirements
 pg8000==1.30.4
 requests==2.31.0
@@ -25,3 +25,4 @@ bcrypt==4.0.1
 packaging==23.2
 pycparser==2.21
 six==1.16.0
+
