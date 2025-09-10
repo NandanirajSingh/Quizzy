@@ -28,8 +28,9 @@ def init_db_pool():
     global db_pool
     try:
         # USE THIS CONNECTION STRING FORMAT FOR NEON
-        connection_string = "postgresql://neondb_owner:npg_cYsvm4VrBbK5@ep-billowing-grass-a11o6ujx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
-        
+        import os
+        connection_string = os.environ["DATABASE_URL"]
+
         db_pool = ThreadedConnectionPool(
             minconn=1,
             maxconn=20,
@@ -1521,3 +1522,4 @@ def close_db_connection(exception):
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
