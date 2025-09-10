@@ -1,60 +1,63 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import os
-import secrets
-import json
-import logging 
-import time
-from functools import wraps
-from urllib.parse import unquote
-from concurrent.futures import ThreadPoolExecutor
-import sys
-
-# Use pg8000 instead of psycopg2 for Python 3.13 compatibility
-import pg8000
-from pg8000.native import Connection
-
+import psycopg2
 from werkzeug.security import generate_password_hash, check_password_hash
-
-# Import other dependencies
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
+import os
+import secrets
+from functools import wraps
 from flask import send_from_directory, jsonify  
+from urllib.parse import unquote
+import json
+import logging 
 from flask_cors import CORS
+import time
 from flask_caching import Cache
-from flask_compress import Compress
+# Update your get_db_connection function to use connection pooling
+from psycopg2.pool import ThreadedConnectionPool
+import threading
+
+from concurrent.futures import ThreadPoolExecutor
 
 # Create a thread pool for background tasks
 executor = ThreadPoolExecutor(max_workers=4)
+# Create a connection pool
+db_pool = None
 
-# Database connection functions
-def get_db_connection():
-    """Get PostgreSQL connection using pg8000"""
+def init_db_pool():
+    global db_pool
     try:
         # USE THIS CONNECTION STRING FORMAT FOR NEON
         connection_string = "postgresql://neondb_owner:npg_cYsvm4VrBbK5@ep-billowing-grass-a11o6ujx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
         
-        # Parse connection string
-        from urllib.parse import urlparse
-        result = urlparse(connection_string)
-        
-        conn = Connection(
-            user=result.username,
-            password=result.password,
-            host=result.hostname,
-            port=result.port or 5432,
-            database=result.path[1:] if result.path else 'neondb'
+        db_pool = ThreadedConnectionPool(
+            minconn=1,
+            maxconn=20,
+            dsn=connection_string  # Use DSN instead of individual parameters
         )
-        return conn
+        print("Database connection pool initialized successfully with Neon")
     except Exception as e:
-        print(f"Database connection error: {e}")
+        print(f"Database connection pool error: {e}")
         raise
 
-def return_db_connection(conn):
-    """Close database connection"""
+# Initialize the pool when the app starts
+init_db_pool()
+
+def get_db_connection():
     try:
-        conn.close()
+        return db_pool.getconn()
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        # Fallback to direct connection with proper Neon format
+        connection_string = "postgresql://neondb_owner:npg_cYsvm4VrBbK5@ep-billowing-grass-a11o6ujx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+        return psycopg2.connect(connection_string)
+
+def return_db_connection(conn):
+    try:
+        db_pool.putconn(conn)
     except:
-        pass
+        conn.close()  # Just close if pool is not available
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -65,6 +68,8 @@ load_dotenv()
 # Create Flask app
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
+
+from flask_compress import Compress
 
 # Add compression to your Flask app
 compress = Compress()
@@ -77,8 +82,9 @@ CORS(app)
 CATEGORIES_DIR = os.path.join('templates', 'categories')
 os.makedirs(CATEGORIES_DIR, exist_ok=True)
 
+
 app.config['CACHE_TYPE'] = 'simple'
-app.config['CACHE_DEFAULT_TIMEOUT'] = 300
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes
 cache = Cache(app)
 
 # ===== Google OAuth Configuration =====
@@ -1514,12 +1520,4 @@ def close_db_connection(exception):
     pass  # Our connection pool handles this automatically
 
 if __name__ == "__main__":
-
     app.run(host='localhost', port=5000, debug=True, threaded=True)
-
-
-
-
-
-
-
