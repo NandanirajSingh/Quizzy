@@ -149,6 +149,41 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
 
+# Add this initialization function
+@app.before_first_request
+def initialize_app():
+    """Initialize application before first request"""
+    # Pre-warm the database connection
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.close()
+        return_db_connection(conn)
+        print("Database connection pre-warmed successfully")
+    except Exception as e:
+        print(f"Failed to pre-warm database connection: {e}")
+    
+    # Pre-warm categories cache for admin users
+    try:
+        with app.app_context():
+            # Pre-warm categories cache for admin users
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT DISTINCT created_by FROM categories LIMIT 10")
+            users = [row[0] for row in cur.fetchall()]
+            
+            for user in users:
+                # Simulate a request to cache categories for each user
+                session['email'] = user
+                get_categories()
+            
+            cur.close()
+            conn.close()
+            logger.info("Cache pre-warming completed")
+    except Exception as e:
+        logger.error(f"Cache pre-warming failed: {e}")
+
 from flask_compress import Compress
 
 # Add compression to your Flask app
@@ -182,6 +217,54 @@ google = oauth.register(
         'prompt': 'select_account'
     }
 )
+
+
+@app.route('/health')
+def health_check():
+    """Endpoint to check application and database health"""
+    try:
+        # Check database connection
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.close()
+        return_db_connection(conn)
+        
+        return jsonify({
+            "status": "healthy",
+            "database": "connected",
+            "timestamp": time.time()
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e),
+            "timestamp": time.time()
+        }), 500
+
+
+from functools import wraps
+from psycopg2 import OperationalError, InterfaceError
+import time
+
+def retry_db_operation(max_retries=3, delay=1):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except (OperationalError, InterfaceError) as e:
+                    if attempt < max_retries - 1:
+                        print(f"Database operation failed, retrying in {delay} seconds: {e}")
+                        time.sleep(delay)
+                        continue
+                    else:
+                        raise
+            return wrapper
+        return decorator
+
 
 
 # Make sure this route doesn't already exist
@@ -820,6 +903,7 @@ def gettoknowus():
 # GET all categories - WITH CACHING for admin
 @app.route('/api/categories', methods=['GET'])
 @login_required
+@retry_db_operation(max_retries=3, delay=1) 
 def get_categories():
     conn = None
     cur = None
@@ -1601,5 +1685,6 @@ def close_db_connection(exception):
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
 
