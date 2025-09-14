@@ -151,8 +151,9 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
 
 # Add this initialization function
 @app.before_first_request
+# Add this initialization function using app.before_serving for Flask 2.3+
 def initialize_app():
-    """Initialize application before first request"""
+    """Initialize application before serving requests"""
     # Pre-warm the database connection
     try:
         conn = get_db_connection()
@@ -183,6 +184,9 @@ def initialize_app():
             logger.info("Cache pre-warming completed")
     except Exception as e:
         logger.error(f"Cache pre-warming failed: {e}")
+
+# Call the initialization function directly
+initialize_app()
 
 from flask_compress import Compress
 
@@ -903,7 +907,6 @@ def gettoknowus():
 # GET all categories - WITH CACHING for admin
 @app.route('/api/categories', methods=['GET'])
 @login_required
-@retry_db_operation(max_retries=3, delay=1) 
 def get_categories():
     conn = None
     cur = None
@@ -1685,6 +1688,7 @@ def close_db_connection(exception):
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
 
 
