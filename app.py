@@ -14,8 +14,11 @@ from flask_cors import CORS
 import time
 from flask_caching import Cache
 # Update your get_db_connection function to use connection pooling
+# Enhanced connection pooling with health checks
 from psycopg2.pool import ThreadedConnectionPool
+from psycopg2 import OperationalError
 import threading
+import time
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -23,6 +26,7 @@ from concurrent.futures import ThreadPoolExecutor
 executor = ThreadPoolExecutor(max_workers=4)
 # Create a connection pool
 db_pool = None
+pool_lock = threading.Lock()
 
 def init_db_pool():
     global db_pool
@@ -30,34 +34,109 @@ def init_db_pool():
         # USE THIS CONNECTION STRING FORMAT FOR NEON
         import os
         connection_string = os.environ["DATABASE_URL"]
+        
+        # Add keepalive parameters to prevent disconnections
+        if "?" in connection_string:
+            connection_string += "&keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5"
+        else:
+            connection_string += "?keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5"
 
         db_pool = ThreadedConnectionPool(
-            minconn=1,
+            minconn=2,  # Increased minimum connections
             maxconn=20,
-            dsn=connection_string  # Use DSN instead of individual parameters
+            dsn=connection_string
         )
+        
+        # Test the connection immediately
+        conn = db_pool.getconn()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.close()
+        db_pool.putconn(conn)
+        
         print("Database connection pool initialized successfully with Neon")
+        
+        # Start connection health check thread
+        threading.Thread(target=connection_health_check, daemon=True).start()
+        
     except Exception as e:
         print(f"Database connection pool error: {e}")
-        raise
+        # Fallback to direct connection with proper Neon format
+        connection_string = "postgresql://neondb_owner:npg_cYsvm4VrBbK5@ep-billowing-grass-a11o6ujx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5"
+        db_pool = None
 
-# Initialize the pool when the app starts
-init_db_pool()
+def connection_health_check():
+    """Background thread to check connection health periodically"""
+    while True:
+        time.sleep(300)  # Check every 5 minutes
+        try:
+            with pool_lock:
+                if db_pool:
+                    conn = db_pool.getconn()
+                    try:
+                        cur = conn.cursor()
+                        cur.execute("SELECT 1")
+                        cur.close()
+                        print("Database connection health check: OK")
+                    finally:
+                        db_pool.putconn(conn)
+        except Exception as e:
+            print(f"Connection health check failed: {e}")
+            # Try to reinitialize the pool
+            try:
+                init_db_pool()
+            except:
+                print("Failed to reinitialize connection pool")
 
 def get_db_connection():
-    try:
-        return db_pool.getconn()
-    except Exception as e:
-        print(f"Database connection error: {e}")
-        # Fallback to direct connection with proper Neon format
-        connection_string = "postgresql://neondb_owner:npg_cYsvm4VrBbK5@ep-billowing-grass-a11o6ujx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
-        return psycopg2.connect(connection_string)
+    """Get a connection with retry logic"""
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            if db_pool:
+                conn = db_pool.getconn()
+                # Test the connection
+                cur = conn.cursor()
+                cur.execute("SELECT 1")
+                cur.close()
+                return conn
+            else:
+                # Fallback to direct connection
+                connection_string = os.environ.get("DATABASE_URL", "postgresql://neondb_owner:npg_cYsvm4VrBbK5@ep-billowing-grass-a11o6ujx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5")
+                return psycopg2.connect(connection_string)
+        except OperationalError as e:
+            print(f"Connection attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(1)  # Wait before retrying
+                continue
+            else:
+                raise
+        except Exception as e:
+            print(f"Unexpected error getting connection: {e}")
+            raise
 
 def return_db_connection(conn):
+    """Return connection to pool with error handling"""
     try:
-        db_pool.putconn(conn)
+        if db_pool:
+            # Test if connection is still valid before returning to pool
+            try:
+                cur = conn.cursor()
+                cur.execute("SELECT 1")
+                cur.close()
+                db_pool.putconn(conn)
+            except:
+                conn.close()  # Close invalid connection
+        else:
+            conn.close()
     except:
-        conn.close()  # Just close if pool is not available
+        try:
+            conn.close()
+        except:
+            pass  # Already closed
+
+# Initialize the pool when the app starts
+init_db_pool()  # Just close if pool is not available
 
 
 # Configure logging
@@ -1522,4 +1601,5 @@ def close_db_connection(exception):
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000, debug=True, threaded=True)
+
 
