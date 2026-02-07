@@ -581,12 +581,12 @@ def login():
             user = cur.fetchone()
             
             if not user:
-                return render_template("/login", 
+                return render_template("login.html", 
                                      message="User does not exist!", 
                                      prefilled_email=email)
             
             if not check_password_hash(user[0], password):
-                return render_template("/login", 
+                return render_template("login.html", 
                                      message="Incorrect password!", 
                                      prefilled_email=email)
             
