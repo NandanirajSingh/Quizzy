@@ -602,7 +602,7 @@ def login():
             cur.close()
             conn.close()
 
-    return render_template("/login", 
+    return render_template("login.html", 
                          message=message, 
                          prefilled_email=prefilled_email)
 
