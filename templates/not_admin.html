@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Restricted - Quizzy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_buster }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .not-admin-container {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            background-color: antiquewhite;
+        }
+        
+        .not-admin-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(255, 94, 36, 0.15);
+            max-width: 600px;
+            border: 2px solid #ff6b35;
+        }
+        
+        .not-admin-icon {
+            font-size: 4rem;
+            color: #ff6b35;
+            margin-bottom: 1.5rem;
+        }
+        
+        .not-admin-title {
+            color: #333;
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .not-admin-message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .join-button {
+            background: linear-gradient(to right, #ff6b35, #ff8a05);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .join-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 107, 53, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo1.png') }}" alt="" height="45px" width="45px" style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+            <div class="links">
+               
+            </div>
+            <button class="button2" onclick="ExpandNav()">
+                <i class="fa-solid fa-bars" id="menubar"></i>
+            </button>
+        </nav>
+
+        <section>
+            <div class="not-admin-container">
+                <div class="not-admin-content">
+                    <div class="not-admin-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <h2 class="not-admin-title">Admin Access Required</h2>
+                    <p class="not-admin-message">
+                        Sorry, you don't have administrator privileges. 
+                        This area is restricted to authorized administrators only.
+                        If you're interested in becoming a content creator on Quizzy, 
+                        please join our creator program.
+                    </p>
+                    <a href="{{ url_for('joinus') }}" class="join-button">
+                        <i class="fas fa-users"></i> Join Creator Program
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+    //navbar expansion
+    function ExpandNav() {
+        const nav = document.getElementById("nav");
+        nav.classList.toggle('expanded');
+        
+        // Toggle between hamburger and close icon
+        const menuIcon = document.getElementById("menubar");
+        if (nav.classList.contains('expanded')) {
+            menuIcon.classList.remove('fa-bars');
+            menuIcon.classList.add('fa-times');
+        } else {
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById("nav");
+        const button = document.querySelector('.button2');
+        
+        // Check if the click is outside the nav and button
+        if (!nav.contains(event.target) && !button.contains(event.target) && nav.classList.contains('expanded')) {
+            nav.classList.remove('expanded');
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000 && nav.classList.contains('expanded')) {
+            nav.classList.remove("expanded");
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    </script>
+</body>
+</html>

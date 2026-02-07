@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Quizzy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_buster }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+        /* Add skeleton loading styles */
+        .skeleton {
+            animation: skeleton-loading 1.5s infinite alternate;
+            background: #f0f0f0;
+            border: none;
+            pointer-events: none;
+        }
+
+        .skeleton-image {
+            height: 120px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-meta {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        @keyframes skeleton-loading {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .category-card.skeleton:hover {
+            transform: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .loading-indicator {
+            text-align: center;
+            padding: 30px;
+            grid-column: 1 / -1;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 30px;
+            color: #dc3545;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body class="admindashboard">
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo1.png') }}" alt="" height="45px" width="45px"
+                    style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+            <div class="links">
+                <a href="{{ url_for('adminhome') }}">
+                    <p>Home</p>
+                </a>
+                <a href="/admindashboard">
+                    <b>
+                        <p>Dashboard</p>
+                    </b>
+                </a>
+                <a href="{{ url_for('gettoknowus') }}">
+                <p>About Us</p>
+            </a>
+    <a href="#"><button id="logoutBtn">Logout</button></a>
+            </div>
+            <button class="button2" id="navbarToggle">
+                <i class="fa-solid fa-bars" id="menubar"></i>
+            </button>
+        </nav>
+        <section>
+            <div class="top">
+                <h3>My Dashboard</h3>
+                <button id="createCategoryBtn">+ Create new category</button>
+            </div>
+            <div class="modalscreen" id="modalscreen">
+                <form id="categoryForm">
+                    <div class="categorymodal">
+                        <div class="up"><b>Create category</b></div>
+                        <div class="center">
+                            Enter Category Name:<input type="text" id="categoryNameInput"><br>
+                        </div>
+                        <div class="down">
+                            <button type="button" id="cancelCreateBtn">Cancel</button>
+                            <input type="submit" value="Create" id="createCategorySubmit">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modalscreen" id="imageModal" style="display: none;">
+                <form id="imageForm">
+                    <div class="categorymodal">
+                        <div class="up"><b>Edit Category Image</b></div>
+                        <div class="center">
+                            Image URL: <input type="url" id="imageUrlInput" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="down">
+                            <button type="button" id="cancelImageBtn">Cancel</button>
+                            <input type="submit" value="Save" id="saveImageBtn">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modalscreen" id="deleteModal" style="display: none;">
+                <div class="categorymodal">
+                    <div class="up"><b>Delete Category</b></div>
+                    <div class="center">
+                        <p>Are you sure you want to delete this category?</p>
+                    </div>
+                    <div class="down">
+                        <button type="button" id="cancelDeleteBtn">Cancel</button>
+                        <button type="button" id="confirmDeleteBtn">Delete</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Add this after your existing modals -->
+<div class="modalscreen" id="logoutModal" style="display: none;">
+    <div class="categorymodal">
+        <div class="up"><b>Logout</b></div>
+        <div class="center">
+            <p>Are you sure that you want to logout?</p>
+        </div>
+        <div class="down">
+            <button type="button" id="cancelLogoutBtn">Cancel</button>
+            <button type="button" id="confirmLogoutBtn" >Logout</button>
+        </div>
+    </div>
+</div>
+            <div class="categories-container" id="categoriesContainer">
+                <!-- Cards will be added here dynamically -->
+            </div>
+
+            <div id="emptyStateMessage" class="empty-state" style="display:none">
+                <i class="fas fa-folder-open"></i>
+                <p>No Categories Yet</p>
+                <small>Get started by creating your first category</small>
+            </div>
+        </section>
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Skeleton template -->
+    <template id="categorySkeleton">
+        <div class="category-card skeleton">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text short"></div>
+            <div class="skeleton-meta"></div>
+        </div>
+    </template>
+
+    <script>
+        // ===== GLOBAL VARIABLES =====
+        let currentEditingCard = null;
+        let cardToDelete = null;
+
+        // ===== MODAL FUNCTIONS =====
+        function showModal() {
+            const modal = document.getElementById("modalscreen");
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function hideModal() {
+            const modal = document.getElementById("modalscreen");
+            if (modal) modal.style.display = 'none';
+        }
+
+        function showImageModal(card) {
+            currentEditingCard = card;
+            const modal = document.getElementById("imageModal");
+            if (modal) modal.style.display = 'flex';
+            
+            // Pre-fill image URL if exists
+            const imageUrlInput = document.getElementById("imageUrlInput");
+            if (imageUrlInput) {
+                const currentImage = card.style.backgroundImage;
+                if (currentImage && currentImage !== 'none') {
+                    imageUrlInput.value = currentImage.replace('url("', '').replace('")', '');
+                } else {
+                    imageUrlInput.value = '';
+                }
+            }
+        }
+
+        function hideImageModal() {
+            const modal = document.getElementById("imageModal");
+            if (modal) modal.style.display = 'none';
+            
+            const imageUrlInput = document.getElementById("imageUrlInput");
+            if (imageUrlInput) imageUrlInput.value = '';
+            
+            currentEditingCard = null;
+        }
+
+        function showDeleteModal(card) {
+            cardToDelete = card;
+            const modal = document.getElementById("deleteModal");
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function hideDeleteModal() {
+            const modal = document.getElementById("deleteModal");
+            if (modal) modal.style.display = 'none';
+            
+            cardToDelete = null;
+        }
+
+        // ===== NAVBAR FUNCTION =====
+         //navbar expansion
+    function ExpandNav() {
+        const nav = document.getElementById("nav");
+        nav.classList.toggle('expanded');
+        
+        // Toggle between hamburger and close icon
+        const menuIcon = document.getElementById("menubar");
+        if (nav.classList.contains('expanded')) {
+            menuIcon.classList.remove('fa-bars');
+            menuIcon.classList.add('fa-times');
+        } else {
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById("nav");
+        const button = document.querySelector('.button2');
+        
+        // Check if the click is outside the nav and button
+        if (!nav.contains(event.target) && !button.contains(event.target) && nav.classList.contains('expanded')) {
+            nav.classList.remove('expanded');
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000 && nav.classList.contains('expanded')) {
+            nav.classList.remove("expanded");
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+
+        // ===== CATEGORY FUNCTIONS =====
+        function showSkeletons() {
+            const container = document.getElementById("categoriesContainer");
+            const skeletonTemplate = document.getElementById("categorySkeleton");
+            
+            if (!container || !skeletonTemplate) return;
+            
+            container.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const skeleton = skeletonTemplate.content.cloneNode(true);
+                container.appendChild(skeleton);
+            }
+        }
+
+        async function loadCategories() {
+    const container = document.getElementById("categoriesContainer");
+    const emptyState = document.getElementById("emptyStateMessage");
+    
+    if (!container) return;
+
+    // Show skeleton loaders immediately
+    showSkeletons();
+    if (emptyState) emptyState.style.display = "none";
+
+    try {
+        // Add cache busting to ensure fresh data
+        const response = await fetch('/api/categories?' + new URLSearchParams({
+            _: Date.now() // Cache buster
+        }), {
+            credentials: 'include' // Ensure cookies are sent
+        });
+
+        if (response.status === 401) {
+            // Session expired, redirect to login
+            window.location.href = '/login?message=Session expired. Please login again.';
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+
+        const categories = await response.json();
+
+        if (!Array.isArray(categories)) {
+            throw new Error("Invalid data received from server");
+        }
+
+        container.innerHTML = '';
+
+        if (categories.length === 0) {
+            if (emptyState) emptyState.style.display = "block";
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        categories.forEach(category => {
+            const card = document.createElement("div");
+            card.className = "category-card";
+            card.dataset.categoryName = category.name;
+            card.dataset.categoryId = category.name; // Use name as ID
+            
+            // Apply background image if it exists
+            if (category.image_url) {
+                card.style.backgroundImage = `url(${category.image_url})`;
+                card.classList.add("with-image");
+            }
+
+            card.innerHTML = `
+                <div class="category-name">${category.name}</div>
+                <div class="category-actions">
+                    <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                    <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                </div>
+            `;
+
+            // Add click event to navigate to category page
+            card.addEventListener('click', (e) => {
+                // Don't navigate if user clicked on action buttons
+                if (!e.target.closest('.category-actions')) {
+                    const categoryName = card.dataset.categoryName;
+                    // Navigate to the category's HTML page
+                    window.location.href = `/categories/${encodeURIComponent(categoryName)}`;
+                }
+            });
+
+            // Add event listeners for action buttons
+            const deleteBtn = card.querySelector('.delete');
+            const editBtn = card.querySelector('.edit');
+            
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showDeleteModal(card);
+                });
+            }
+            
+            if (editBtn) {
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showImageModal(card);
+                });
+            }
+
+            fragment.appendChild(card);
+        });
+
+        container.appendChild(fragment);
+
+    } catch (error) {
+        console.error("Error loading categories:", error);
+        container.innerHTML = '<div class="error-message">Failed to load categories. <a href="javascript:location.reload()">Refresh page</a></div>';
+    }
+}
+
+// ===== CATEGORY PAGE CREATION FUNCTION =====
+async function createCategoryHtmlFile(categoryName) {
+    try {
+        const response = await fetch('/api/create-category-page', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                category_name: categoryName
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create category page');
+        }
+
+        const result = await response.json();
+        console.log(`Category page for ${categoryName} created successfully:`, result);
+    } catch (error) {
+        console.error("Error creating category HTML file:", error);
+        // Don't show alert for this background task, just log it
+    }
+}
+
+function startSessionHeartbeat() {
+    setInterval(async () => {
+        try {
+            await fetch('/api/session-heartbeat', {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (error) {
+            console.log('Session heartbeat failed');
+        }
+    }, 300000); // Every 5 minutes
+}
+
+        async function createCategory() {
+            const nameInput = document.getElementById("categoryNameInput");
+            if (!nameInput) return;
+            
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                alert("Please enter a category name");
+                return;
+            }
+
+            try {
+                const createBtn = document.getElementById("createCategorySubmit");
+                if (createBtn) {
+                    createBtn.disabled = true;
+                    createBtn.value = "Creating...";
+                }
+
+                const response = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || "Failed to create category");
+                }
+
+                nameInput.value = '';
+                hideModal();
+                
+                // Create category page in background without waiting
+                createCategoryHtmlFile(name);
+                
+                // Add the new category directly to UI without full reload
+                const container = document.getElementById("categoriesContainer");
+                const emptyState = document.getElementById("emptyStateMessage");
+                if (emptyState) emptyState.style.display = "none";
+
+                if (container) {
+                    const card = document.createElement("div");
+                    card.className = "category-card";
+                    card.dataset.categoryName = name;
+                    card.innerHTML = `
+                        <div class="category-name">${name}</div>
+                        <div class="category-actions">
+                            <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                        </div>
+                    `;
+
+                    // Add event listeners
+                    const deleteBtn = card.querySelector('.delete');
+                    const editBtn = card.querySelector('.edit');
+                    
+                    if (deleteBtn) {
+                        deleteBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showDeleteModal(card);
+                        });
+                    }
+                    
+                    if (editBtn) {
+                        editBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showImageModal(card);
+                        });
+                    }
+
+                    // Add click event to navigate to category page
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.closest('.category-actions')) {
+                            const categoryName = card.dataset.categoryName;
+                            window.location.href = `/categories/${encodeURIComponent(categoryName)}`;
+                        }
+                    });
+
+                    container.appendChild(card);
+                }
+
+            } catch (error) {
+                console.error("Error creating category:", error);
+                alert(error.message);
+            } finally {
+                const createBtn = document.getElementById("createCategorySubmit");
+                if (createBtn) {
+                    createBtn.disabled = false;
+                    createBtn.value = "Create";
+                }
+            }
+        }
+
+        async function deleteCategory() {
+            if (!cardToDelete) return;
+
+            const categoryName = cardToDelete.dataset.categoryName;
+            if (!categoryName) return;
+
+            try {
+                const deleteBtn = document.getElementById("confirmDeleteBtn");
+                if (deleteBtn) {
+                    deleteBtn.disabled = true;
+                    deleteBtn.textContent = "Deleting...";
+                }
+
+                const response = await fetch(`/api/categories/${encodeURIComponent(categoryName)}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.error || "Failed to delete category");
+                }
+
+                cardToDelete.remove();
+                hideDeleteModal();
+
+                // Show empty state if no categories left
+                const container = document.getElementById("categoriesContainer");
+                const emptyState = document.getElementById("emptyStateMessage");
+                if (emptyState && container && container.children.length === 0) {
+                    emptyState.style.display = "block";
+                }
+
+            } catch (error) {
+                console.error("Error deleting category:", error);
+                alert(error.message);
+            } finally {
+                const deleteBtn = document.getElementById("confirmDeleteBtn");
+                if (deleteBtn) {
+                    deleteBtn.disabled = false;
+                    deleteBtn.textContent = "Delete";
+                }
+            }
+        }
+
+        async function handleImageSubmit(e) {
+            e.preventDefault();
+            const imageUrlInput = document.getElementById("imageUrlInput");
+            if (!imageUrlInput) return;
+            
+            const imageUrl = imageUrlInput.value.trim();
+
+            if (!imageUrl || !currentEditingCard) {
+                hideImageModal();
+                return;
+            }
+
+            try {
+                const saveBtn = document.getElementById("saveImageBtn");
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.value = "Saving...";
+                }
+
+                const categoryName = currentEditingCard.dataset.categoryName;
+                const response = await fetch(`/api/categories/${encodeURIComponent(categoryName)}/image`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image_url: imageUrl })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to update image");
+                }
+
+                currentEditingCard.style.backgroundImage = `url(${imageUrl})`;
+                currentEditingCard.classList.add("with-image");
+                hideImageModal();
+            } catch (error) {
+                console.error("Error updating image:", error);
+                alert(error.message);
+            } finally {
+                const saveBtn = document.getElementById("saveImageBtn");
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.value = "Save";
+                }
+            }
+        }
+
+        // ===== INITIALIZE PAGE =====
+        function initializePage() {
+            // Load categories immediately
+            loadCategories();
+    startSessionHeartbeat();
+
+             const logoutBtn = document.getElementById("logoutBtn");
+    const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+    const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+    
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            showLogoutModal();
+        });
+    }
+    
+    if (cancelLogoutBtn) {
+        cancelLogoutBtn.addEventListener("click", hideLogoutModal);
+    }
+    
+    if (confirmLogoutBtn) {
+        confirmLogoutBtn.addEventListener("click", confirmLogout);
+    }
+            // Set up event listeners
+            const createCategoryBtn = document.getElementById("createCategoryBtn");
+            const categoryForm = document.getElementById("categoryForm");
+            const imageForm = document.getElementById("imageForm");
+            const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+            const navbarToggle = document.getElementById("navbarToggle");
+            const cancelCreateBtn = document.getElementById("cancelCreateBtn");
+            const cancelImageBtn = document.getElementById("cancelImageBtn");
+            const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+            
+            if (createCategoryBtn) {
+                createCategoryBtn.addEventListener("click", showModal);
+            }
+            
+            if (categoryForm) {
+                categoryForm.addEventListener("submit", function(e) {
+                    e.preventDefault();
+                    createCategory();
+                });
+            }
+            
+            if (imageForm) {
+                imageForm.addEventListener("submit", handleImageSubmit);
+            }
+            
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener("click", deleteCategory);
+            }
+            
+            if (navbarToggle) {
+                navbarToggle.addEventListener("click", function() {
+                    ExpandNav();
+                });
+            }
+            
+            if (cancelCreateBtn) {
+                cancelCreateBtn.addEventListener("click", hideModal);
+            }
+            
+            if (cancelImageBtn) {
+                cancelImageBtn.addEventListener("click", hideImageModal);
+            }
+            
+            if (cancelDeleteBtn) {
+                cancelDeleteBtn.addEventListener("click", hideDeleteModal);
+            }
+        }
+
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        } else {
+            initializePage();
+        }
+        // ===== LOGOUT MODAL FUNCTIONS =====
+function showLogoutModal() {
+    const modal = document.getElementById("logoutModal");
+    if (modal) modal.style.display = 'flex';
+}
+
+function hideLogoutModal() {
+    const modal = document.getElementById("logoutModal");
+    if (modal) modal.style.display = 'none';
+}
+
+async function confirmLogout() {
+    try {
+        // Perform logout API call if needed
+        // await fetch('/api/logout', { method: 'POST' });
+        
+        // Redirect to login page
+        window.location.href = '/login';
+    } catch (error) {
+        console.error("Error during logout:", error);
+        // Fallback redirect if API call fails
+        window.location.href = '/login';
+    }
+}
+    </script>
+</body>
+</html>

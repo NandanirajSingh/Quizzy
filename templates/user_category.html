@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category_name }} - Quizzy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_buster }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      .category-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .category-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-header h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .category-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .quizzes-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quizzes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .quizzes-header h2 {
+            color: #333;
+            margin: 0;
+        }
+        
+        .quizzes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .quiz-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #eee;
+            min-height: 200px;
+        }
+        
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 94, 36, 0.15);
+        }
+        
+        .quiz-card-content h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1.3rem;
+        }
+        
+        .quiz-card-content p {
+            color: #666;
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+        }
+        
+        .quiz-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .quiz-difficulty {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .difficulty-easy {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .difficulty-medium {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .difficulty-hard {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .quiz-questions {
+            font-size: 0.9rem;
+            color: #757575;
+        }
+        
+        .empty-quizzes {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            grid-column: 1 / -1;
+        }
+        
+        .empty-quizzes i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+        
+        .loading-quizzes {
+            text-align: center;
+            padding: 30px;
+            grid-column: 1 / -1;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 30px;
+            color: #dc3545;
+            grid-column: 1 / -1;
+        }
+        
+        .play-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgb(255, 68, 0);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .play-btn:hover {
+            background: rgb(255, 106, 52);
+            transform: scale(1.1);
+        }
+        
+        .quiz-card.with-image {
+            color: white;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .quiz-card.with-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        
+        .quiz-card.with-image .quiz-card-content h3,
+        .quiz-card.with-image .quiz-card-content p {
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+        }
+        
+        .quiz-card.with-image .quiz-difficulty {
+            background-color: rgba(255, 255, 255, 0.9);
+            text-shadow: none;
+        }
+        
+        /* Add these styles for skeleton loading */
+        .skeleton {
+            animation: skeleton-loading 1.5s infinite alternate;
+            background: #f0f0f0;
+            border: none;
+            pointer-events: none;
+        }
+
+        .skeleton-image {
+            height: 120px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-meta {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        @keyframes skeleton-loading {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .quiz-card.skeleton:hover {
+            transform: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        @media (max-width: 768px) {
+            .quizzes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quizzes-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+</style>
+</head>
+<body class="category-page">
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="/static/logo1.png" alt="" height="45px" width="45px" style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+            <div class="links">
+                <a href="{{ url_for('userhome') }}"><p>Home</p></a>
+                <a href="{{ url_for('userdashboard') }}"><b><p>Dashboard</p></b></a>
+               <a href="{{ url_for('gettoknowus') }}">
+                <p>About Us</p>
+            </a>
+                <a href="/login"><button>Admin Login</button></a>
+            </div>
+            <button class="button2" id="navbarToggle">
+                <i class="fa-solid fa-bars" id="menubar"></i>
+            </button>
+        </nav>
+
+        <section>
+            <div class="category-content">
+                <div class="category-header">
+                    <h2>{{ category_name }}</h2>
+                    <p>Select a quiz to play and test your knowledge</p>
+                </div>
+                
+                <div class="quizzes-container">
+                    <div class="quizzes-header">
+                        <h2>Available Quizzes</h2>
+                    </div>
+                    
+                    <div class="quizzes-grid" id="quizzesList">
+                        <!-- Quizzes will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Skeleton template -->
+    <template id="quizSkeleton">
+        <div class="quiz-card skeleton">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text short"></div>
+            <div class="skeleton-meta"></div>
+        </div>
+    </template>
+
+    <script>
+     //navbar expansion
+    function ExpandNav() {
+        const nav = document.getElementById("nav");
+        nav.classList.toggle('expanded');
+        
+        // Toggle between hamburger and close icon
+        const menuIcon = document.getElementById("menubar");
+        if (nav.classList.contains('expanded')) {
+            menuIcon.classList.remove('fa-bars');
+            menuIcon.classList.add('fa-times');
+        } else {
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById("nav");
+        const button = document.querySelector('.button2');
+        
+        // Check if the click is outside the nav and button
+        if (!nav.contains(event.target) && !button.contains(event.target) && nav.classList.contains('expanded')) {
+            nav.classList.remove('expanded');
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000 && nav.classList.contains('expanded')) {
+            nav.classList.remove("expanded");
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Show skeleton loaders
+    function showSkeletons() {
+        const quizzesList = document.getElementById('quizzesList');
+        const skeletonTemplate = document.getElementById('quizSkeleton');
+        
+        if (!quizzesList || !skeletonTemplate) return;
+        
+        quizzesList.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const skeleton = skeletonTemplate.content.cloneNode(true);
+            quizzesList.appendChild(skeleton);
+        }
+    }
+    
+    // Preload images for better performance
+    function preloadImage(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+    
+    async function loadQuizzes() {
+        const quizzesList = document.getElementById('quizzesList');
+        const categoryName = '{{ category_name }}';
+        
+        if (!quizzesList) return;
+        
+        // Show skeleton loaders immediately
+        showSkeletons();
+        
+        try {
+            // Add a small delay to show skeleton (optional)
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const response = await fetch('/api/user/categories/' + encodeURIComponent(categoryName) + '/quizzes');
+            
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status);
+            }
+            
+            const quizzes = await response.json();
+            quizzesList.innerHTML = '';
+            
+            if (!quizzes || quizzes.length === 0) {
+                quizzesList.innerHTML = `
+                    <div class="empty-quizzes">
+                        <i class="fas fa-inbox" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"></i>
+                        <p>No quizzes available yet</p>
+                        <small>Check back later for new quizzes in this category</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Preload all images first
+            const imagePreloadPromises = [];
+            for (const quiz of quizzes) {
+                if (quiz.image_url) {
+                    imagePreloadPromises.push(preloadImage(quiz.image_url).catch(() => {
+                        console.log(`Failed to preload image for quiz: ${quiz.title}`);
+                    }));
+                }
+            }
+            
+            // Wait for all images to preload
+            await Promise.all(imagePreloadPromises);
+            
+            // Create a document fragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            quizzes.forEach(quiz => {
+                const difficultyClass = 'difficulty-' + quiz.difficulty;
+                const quizCard = document.createElement('div');
+                quizCard.className = 'quiz-card';
+                quizCard.dataset.quizId = quiz.id;
+                
+                quizCard.innerHTML = `
+                    <div class="quiz-card-content">
+                        <h3>${quiz.title}</h3>
+                        <p>${quiz.description || 'Test your knowledge with this quiz'}</p>
+                        <div class="quiz-meta">
+                            <span class="quiz-difficulty ${difficultyClass}">${quiz.difficulty}</span>
+                            <span class="quiz-questions">${quiz.num_questions} questions</span>
+                        </div>
+                    </div>
+                    <button class="play-btn" title="Play Quiz">
+                        <i class="fas fa-play"></i>
+                    </button>
+                `;
+                
+                // Load images in the background without blocking
+                if (quiz.image_url) {
+                    quizCard.style.backgroundImage = 'url(' + quiz.image_url + ')';
+                    quizCard.style.backgroundSize = 'cover';
+                    quizCard.style.backgroundPosition = 'center';
+                    quizCard.classList.add("with-image");
+                }
+                
+                quizCard.addEventListener('click', () => {
+                    window.location.href = '/user/quiz/' + quiz.id;
+                });
+                
+                fragment.appendChild(quizCard);
+            });
+            
+            quizzesList.appendChild(fragment);
+            
+        } catch (error) {
+            console.error('Error loading quizzes:', error);
+            if (quizzesList) {
+                quizzesList.innerHTML = '<div class="error-message">Failed to load quizzes. Please try again later.</div>';
+            }
+        }
+    }
+
+    // Initialize the page
+    function initializePage() {
+        // Load quizzes when page is ready
+        loadQuizzes();
+        
+        // Set up navbar toggle
+        const navbarToggle = document.getElementById("navbarToggle");
+        if (navbarToggle) {
+            navbarToggle.addEventListener("click", ExpandNav);
+        }
+    }
+
+    // Wait for DOM to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+        initializePage();
+    }
+    </script>
+</body>
+</html>

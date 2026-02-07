@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - User</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_buster }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Category Cards Styles - Matching Admin Dashboard */
+        .userdashboard section {
+        padding: 35px 3%;
+        position: relative;
+    }
+
+    .userdashboard section .top {
+        justify-content: space-between;
+    }
+
+    .userdashboard section .top h3 {
+        font-size: 2.2rem;
+        color: rgb(49, 49, 49);
+    }
+
+        .categories-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-rows: repeat(auto-fill, minmax(220px, 220px));
+            gap: 25px;
+            margin-top: 40px;
+            padding: 20px 0;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .category-card {
+            cursor: pointer;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(255, 94, 36, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 68, 0, 0.1);
+            min-height: 220px;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #ff4400, #ff8a05);
+            transition: width 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(255, 94, 36, 0.15);
+        }
+
+        .category-card:hover::before {
+            width: 8px;
+        }
+
+        .category-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .category-card.with-image {
+            color: white;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-card.with-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        .category-card.with-image .category-name {
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading-indicator, .error-message {
+            text-align: center;
+            padding: 20px;
+            grid-column: 1 / -1;
+        }
+
+        .loading-indicator i {
+            margin-right: 10px;
+        }
+
+        .error-message {
+            color: #ff4757;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .top h3 {
+            color: #333;
+            margin: 0;
+            font-size: 2.2rem;
+        }
+    </style>
+</head>
+<body class="userdashboard">
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo1.png') }}" alt="" height="45px" width="45px" style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+            <div class="links">
+                <a href="{{ url_for('userhome') }}"><p>Home</p></a> 
+                <a href="{{ url_for('userdashboard') }}"><b><p>Dashboard</p></b></a> 
+                <a href="{{ url_for('gettoknowus') }}">
+                <p>About Us</p>
+            </a>
+                <a href="/login"><button>Admin Login</button></a>
+            </div>
+            <button class="button2" onclick="ExpandNav()">
+                <i class="fa-solid fa-bars" id="menubar"></i>
+            </button>
+        </nav>
+        <section>
+            <div class="top">
+                <h3>My Dashboard</h3>
+            </div>
+            
+            <div class="categories-container" id="categoriesContainer">
+                <!-- Cards will be added here dynamically -->
+            </div>
+
+            <div id="emptyStateMessage" class="empty-state" style="display:none">
+                <i class="fas fa-folder-open"></i>
+                <p>No Categories Available</p>
+                <small>Categories will appear here when created by admin</small>
+            </div>
+        </section>
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+ <script>
+    // ===== NAVBAR FUNCTION =====
+     //navbar expansion
+    function ExpandNav() {
+        const nav = document.getElementById("nav");
+        nav.classList.toggle('expanded');
+        
+        // Toggle between hamburger and close icon
+        const menuIcon = document.getElementById("menubar");
+        if (nav.classList.contains('expanded')) {
+            menuIcon.classList.remove('fa-bars');
+            menuIcon.classList.add('fa-times');
+        } else {
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById("nav");
+        const button = document.querySelector('.button2');
+        
+        // Check if the click is outside the nav and button
+        if (!nav.contains(event.target) && !button.contains(event.target) && nav.classList.contains('expanded')) {
+            nav.classList.remove('expanded');
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000 && nav.classList.contains('expanded')) {
+            nav.classList.remove("expanded");
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000) {
+            nav.classList.remove("expanded");
+        }
+    });
+
+    // ===== CATEGORY FUNCTIONS =====
+    async function loadCategories() {
+        const container = document.getElementById("categoriesContainer");
+        const emptyState = document.getElementById("emptyStateMessage");
+
+        container.innerHTML = '';
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'loading-indicator';
+        loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading categories...';
+        container.appendChild(loadingIndicator);
+
+        try {
+            // Use the user-specific endpoint
+            const response = await fetch('/api/user/categories');
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+
+            const categories = await response.json();
+
+            if (!Array.isArray(categories)) {
+                throw new Error("Invalid data received from server");
+            }
+
+            container.removeChild(loadingIndicator);
+
+            if (categories.length === 0) {
+                emptyState.style.display = "block";
+                return;
+            }
+
+            emptyState.style.display = "none";
+            const fragment = document.createDocumentFragment();
+
+            categories.forEach(category => {
+                const card = document.createElement("div");
+                card.className = "category-card";
+                card.dataset.categoryName = category.name;
+                
+                // Apply background image if it exists
+                if (category.image_url) {
+                    card.style.backgroundImage = `url(${category.image_url})`;
+                    card.classList.add("with-image");
+                }
+
+                card.innerHTML = `
+                    <div class="category-name">${category.name}</div>
+                `;
+
+                // Add click event to navigate to USER category page
+                card.addEventListener('click', () => {
+                    const categoryName = card.dataset.categoryName;
+                    // Navigate to the USER category page
+                    window.location.href = `/user/categories/${encodeURIComponent(categoryName)}`;
+                });
+
+                fragment.appendChild(card);
+            });
+
+            container.appendChild(fragment);
+
+        } catch (error) {
+            console.error("Error loading categories:", error);
+            container.innerHTML = '<div class="error-message">Failed to load categories</div>';
+        }
+    }
+
+    // ===== INITIALIZE PAGE =====
+    document.addEventListener("DOMContentLoaded", function() {
+        // Load categories
+        loadCategories();
+    });
+</script>
+</body>
+</html>

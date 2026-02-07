@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Quizzy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_buster }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quiz-header h2 {
+            font-size: 2.2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-header p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        .quiz-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .quiz-info {
+            padding: 8px 15px;
+            background: #f5f5f5;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .questions-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .question-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option-item:hover {
+            background: #f9f9f9;
+            border-color: #ccc;
+        }
+        
+        .option-item.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        .option-item input {
+            margin-right: 12px;
+        }
+        
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: rgb(255, 68, 0);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            background: rgb(255, 106, 52);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .results-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .score-display {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .score-value {
+            font-weight: bold;
+            color: rgb(255, 68, 0);
+        }
+        
+        .result-item {
+            text-align: left;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .result-correct {
+            border-left: 4px solid #4caf50;
+        }
+        
+        .result-incorrect {
+            border-left: 4px solid #f44336;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            background: #e5e5e5;
+        }
+        
+        .loading, .error {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+        }
+        
+        .loading i {
+            margin-right: 10px;
+            color: rgb(255, 68, 0);
+        }
+        
+        .error {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="/static/logo1.png" alt="" height="45px" width="45px" style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+            <div class="links">
+                <a href="{{ url_for('userhome') }}"><p>Home</p></a>
+                <a href="{{ url_for('userdashboard') }}"><p>Dashboard</p></a>
+                <a href="{{ url_for('gettoknowus') }}">
+                <p>About Us</p>
+            </a>
+                <a href="/login"><button>Admin Login</button></a>
+            </div>
+            <button class="button2" onclick="ExpandNav()">
+                <i class="fa-solid fa-bars" id="menubar"></i>
+            </button>
+        </nav>
+
+        <section>
+            <div class="quiz-container" id="quizContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading quiz...
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+    //navbar expansion
+    function ExpandNav() {
+        const nav = document.getElementById("nav");
+        nav.classList.toggle('expanded');
+        
+        // Toggle between hamburger and close icon
+        const menuIcon = document.getElementById("menubar");
+        if (nav.classList.contains('expanded')) {
+            menuIcon.classList.remove('fa-bars');
+            menuIcon.classList.add('fa-times');
+        } else {
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const nav = document.getElementById("nav");
+        const button = document.querySelector('.button2');
+        
+        // Check if the click is outside the nav and button
+        if (!nav.contains(event.target) && !button.contains(event.target) && nav.classList.contains('expanded')) {
+            nav.classList.remove('expanded');
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const nav = document.getElementById("nav");
+        if (window.innerWidth > 1000 && nav.classList.contains('expanded')) {
+            nav.classList.remove("expanded");
+            const menuIcon = document.getElementById("menubar");
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+        }
+    });
+    
+    async function loadQuiz() {
+        // Extract quiz ID from URL
+        const pathParts = window.location.pathname.split('/');
+        const quizId = pathParts[pathParts.length - 1];
+        const container = document.getElementById('quizContainer');
+        
+        try {
+            const response = await fetch('/api/user/quizzes/' + quizId);
+            
+            if (!response.ok) {
+                throw new Error('Failed to load quiz');
+            }
+            
+            const quiz = await response.json();
+            renderQuiz(quiz);
+        } catch (error) {
+            console.error('Error loading quiz:', error);
+            container.innerHTML = '<div class="error"><i class="fas fa-exclamation-circle"></i> Failed to load quiz. Please try again later.</div>';
+        }
+    }
+    
+    function renderQuiz(quiz) {
+        const container = document.getElementById('quizContainer');
+        
+        let questionsHTML = '';
+        quiz.questions.forEach((question, index) => {
+            let optionsHTML = '';
+            question.options.forEach((option, optIndex) => {
+                optionsHTML += `<label class="option-item">
+                    <input type="radio" name="question-${question.id}" value="${optIndex}">
+                    ${option}
+                </label>`;
+            });
+            
+            questionsHTML += `<div class="question-item">
+                <div class="question-text">${index + 1}. ${question.question}</div>
+                <div class="options-list">${optionsHTML}</div>
+            </div>`;
+        });
+        
+        container.innerHTML = `
+            <div class="quiz-header">
+                <h2>${quiz.title}</h2>
+                <p>${quiz.description || 'Test your knowledge with this quiz'}</p>
+                <div class="quiz-meta">
+                    <span class="quiz-info">Category: ${quiz.category}</span>
+                    <span class="quiz-info">Difficulty: ${quiz.difficulty}</span>
+                    <span class="quiz-info">Questions: ${quiz.questions.length}</span>
+                </div>
+            </div>
+            
+            <form id="quizForm">
+                <div class="questions-container">
+                    ${questionsHTML}
+                    <button type="submit" class="submit-btn">Submit Answers</button>
+                </div>
+            </form>
+        `;
+        
+        document.getElementById('quizForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const answers = {};
+            
+            quiz.questions.forEach(question => {
+                const answer = formData.get('question-' + question.id);
+                if (answer !== null) {
+                    answers[question.id] = parseInt(answer);
+                }
+            });
+            
+            // Check if all questions are answered
+            if (Object.keys(answers).length !== quiz.questions.length) {
+                alert('Please answer all questions before submitting.');
+                return;
+            }
+            
+            try {
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                
+                const response = await fetch('/api/user/quizzes/' + quiz.id + '/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ answers: answers })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to submit quiz');
+                }
+                
+                const results = await response.json();
+                showResults(quiz, results);
+            } catch (error) {
+                console.error('Error submitting quiz:', error);
+                alert('An error occurred while submitting your answers. Please try again.');
+                
+                const submitBtn = document.querySelector('.submit-btn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Answers';
+                }
+            }
+        });
+    }
+    
+    function showResults(quiz, results) {
+        const container = document.getElementById('quizContainer');
+        
+        let resultsHTML = '';
+        quiz.questions.forEach((question, index) => {
+            const result = results.results[question.id];
+            const isCorrect = result.correct;
+            const userAnswer = question.options[result.user_answer];
+            const correctAnswer = question.options[question.correct_answer];
+            
+            resultsHTML += `<div class="result-item ${isCorrect ? 'result-correct' : 'result-incorrect'}">
+                <div class="question-text">${index + 1}. ${question.question}</div>
+                <div>Your answer: ${userAnswer}</div>
+                ${!isCorrect ? '<div>Correct answer: ' + correctAnswer + '</div>' : ''}
+                <div><strong>${isCorrect ? 'Correct!' : 'Incorrect'}</strong></div>
+            </div>`;
+        });
+        
+        container.innerHTML = `
+            <div class="results-container">
+                <h2>Quiz Results</h2>
+                <div class="score-display">
+                    Your score: <span class="score-value">${results.score}/${results.total_questions}</span>
+                    (${results.percentage}%)
+                </div>
+                
+                <div class="results-details">
+                    ${resultsHTML}
+                </div>
+                
+                <a href="/user/categories/${encodeURIComponent(quiz.category)}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Category
+                </a>
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadQuiz();
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Quizzy</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div class="main">
+        <nav class="navbar" id="nav">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo1.png') }}" alt="" height="45px" width="45px" style="border-radius: 50%;">
+                <h1>Quizzy</h1>
+            </div>
+        </nav>
+        <section >
+            <div class="aboutus">
+                <h2>Who We Are & What We Do</h2>
+                <div class="whoweare">
+                    <div class="left">
+                        <img src="{{ url_for('static', filename='Uploading-pana.svg')}}" alt="">
+                    </div>
+                    <div class="right">
+                        <p><b>Join us in exploring the world of knowledge—one quiz at a time.</b></p><br>
+                        <p>Welcome to Quizzy, a dynamic and engaging platform designed to make learning both enjoyable
+                            and
+                            impactful. Our mission is to combine the excitement of quizzes with the power of knowledge,
+                            enabling users to test their skills, challenge their minds, and expand their understanding
+                            across a wide range of topics.</p>
+                        <br>
+                        <p>Whether
+                            you are a student aiming to enhance your academic performance, a professional seeking to
+                            sharpen
+                            your expertise, or simply someone who enjoys a healthy challenge, our platform offers
+                            thoughtfully crafted quizzes to suit every interest and skill level.</p>
+                        <br>
+                        <p>Our team is dedicated to creating a seamless user experience with intuitive navigation,
+                            diverse
+                            question formats, and real-time scoring to keep you motivated.We believe quizzes shouldn’t
+                            just be about answering questions—they should be an adventure that
+                            sparks curiosity and rewards your brainpower.</p>
+                    </div>
+                </div>
+                <h2>Frequently Asked Questions</h2>
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Do I need to register to play?</span>
+                            <span class="icon">+</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p>Registration is recommended to save your scores, track your progress, and compete on the
+                                leaderboard. Some quizzes may be available without login.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Is it free to use?</span>
+                            <span class="icon">+</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p>Yes! Most quizzes are free. Some special tournaments or premium features may require a
+                                subscription or entry fee.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Can I create my own quizzes?</span>
+                            <span class="icon">+</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p>Yes! Once registered as a “Quiz Creator” or upgraded to that role, you can design and
+                                publish quizzes.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>What types of quizzes are available?</span>
+                            <span class="icon">+</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p>We offer interactive quizzes across various categories. Mostly on different subjects and
+                                of various interests.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Can I play on my phone?</span>
+                            <span class="icon">+</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p>Absolutely! The app is responsive and works smoothly on mobile devices.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Contact Us</h2>
+                <div class="contactus">
+                    <div class="contacts">
+                        <div class="applogo"><i class="fa-solid fa-phone"></i></div>
+                        <h3>Phone Support</h3>
+                        <p>Need help or have a quick question? <br> Our support team is just a call away.</p>
+                        <p><b>Phone:</b> +91 98765 43210</p>
+                        <p><b>Available:</b> Mon–Sat, 9:00 AM – 7:00 PM</p>
+                    </div>
+                    <div class="contacts">
+                        <div class="applogo"><i class="fa-solid fa-envelope"></i></div>
+                        <h3>Email Support</h3>
+                        <p>For detailed queries or feedback, <br>
+                            drop us an email and we’ll get back soon.</p>
+                        <p><b>Email:</b> support@quizzy.com</p>
+                        <p><b>Response Time:</b> Within 24 hours</p>
+                    </div>
+                    <div class="contacts">
+                        <div class="applogo"><i class="fa-solid fa-location-dot"></i></div>
+                        <h3>Office Location</h3>
+                        <p>We’d love to meet you in person. <br>
+                            Come visit our office during working hours.</p>
+                        <p><b>Address:</b> 123 Quizzy Street,
+                            Lucknow, Uttar Pradesh, India
+                        </p>
+                        <p><b>Hours:</b> Mon–Fri, 10:00 AM – 6:00 PM</p>
+                    </div>
+                    <img src="{{ url_for('static', filename='Contact us-bro.svg') }}" class="cimg" height="220px" style="position: absolute; right: -10%; bottom:-50%">
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p>© 2025 Quizzy. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.querySelectorAll(".accordion-header").forEach(header => {
+            header.addEventListener("click", () => {
+                const item = header.parentElement;
+                item.classList.toggle("active");
+
+                // Change icon between + and -
+                const icon = header.querySelector(".icon");
+                icon.textContent = item.classList.contains("active") ? "−" : "+";
+            });
+        });
+        //navbar expansion
+        function ExpandNav() {
+            const nav = document.getElementById("nav");
+            if (window.innerWidth <= 700) {
+                nav.classList.toggle('expanded')
+            }
+        }
+        window.addEventListener('resize', () => {
+            const nav = document.getElementById("nav");
+            if (window.innerWidth > 1000) {
+                nav.classList.remove("expanded");
+            }
+        });
+    </script>
+</body>
+
+</html>
