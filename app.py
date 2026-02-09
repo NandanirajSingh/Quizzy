@@ -767,6 +767,14 @@ def get_categories():
             cur.close()
         if conn:
             return_db_connection(conn)
+            
+@app.route('/debug-oauth')
+def debug_oauth():
+    return {
+        'login_callback': url_for('google_login_callback', _external=True),
+        'register_callback': url_for('google_register_callback', _external=True),
+        'client_id': os.environ.get('GOOGLE_CLIENT_ID')
+    }
 
 # POST new category
 @app.route('/api/categories', methods=['POST'])
