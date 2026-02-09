@@ -19,6 +19,12 @@ import threading
 
 from concurrent.futures import ThreadPoolExecutor
 
+import os
+
+# ADD THIS ONE LINE:
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Add this line
+
+# Rest of your code...
 # Create a thread pool for background tasks
 executor = ThreadPoolExecutor(max_workers=4)
 # Create a connection pool
@@ -655,7 +661,7 @@ def dashboard():
 @app.route('/register/google')
 def google_register():
     session['oauth_nonce'] = secrets.token_urlsafe(16)
-    redirect_uri = url_for('google_register_callback', _external=True)
+    redirect_uri = url_for('https://quizzy-2-h2qw.onrender.com/register/google/callback', _external=True)
     return google.authorize_redirect(redirect_uri, nonce=session['oauth_nonce'])
 
 @app.route('/register/google/callback')
@@ -682,7 +688,7 @@ def google_register_callback():
 @app.route('/login/google')
 def google_login():
     session['oauth_nonce'] = secrets.token_urlsafe(16)
-    redirect_uri = url_for('google_login_callback', _external=True)
+    redirect_uri = url_for('https://quizzy-2-h2qw.onrender.com/login/google/callback', _external=True)
     return google.authorize_redirect(redirect_uri, nonce=session['oauth_nonce'])
 
 @app.route('/login/google/callback')
